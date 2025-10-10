@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import { connectDB } from './config/db.js';
+import userRoutes from './routes/authRoutes.js';        
 
 
 const app = express();
@@ -12,6 +13,12 @@ app.use(express.json());
 //Connected to database
 
 connectDB();
+
+//MIDDLEWARE
+app.use(express.json());
+
+
+app.use('/api/users', userRoutes);
 
 const PORT = 3000;
 

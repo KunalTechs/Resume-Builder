@@ -3,8 +3,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 // GENERATE JWT TOKEN
-const generateToken = (user) =>{
-    return jwt.sign({ id:userId},process.env.JWT_SECRET,{ expiresIn: 'Id'})
+const generateToken = (userId) =>{
+    return jwt.sign({ id:userId},process.env.JWT_SECRET,{ expiresIn: '1h'})
 }
 
 // REGISTER USER
@@ -58,3 +58,17 @@ export const login = async (req, res) => {
         res.status(500).json({ message: 'Server error',error: error.message });
     }       
 };
+
+
+// GET USER PROFILE
+export const getUserProfile = async (req,res) =>{
+    try{
+        const user = await User.findById(req.user.id).select("-password");
+        if(!user){
+            return res.status(404).json({ message: 'User not found'})
+        }
+        res.json(user);
+    }catch (error) {
+        res.status(500).json({ message: 'Server error',error: error.message });
+    } 
+}
