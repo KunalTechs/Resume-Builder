@@ -4,9 +4,11 @@ import jwt from "jsonwebtoken";
 // AUTH MIDDLEWARE TO PROTECT ROUTES
 export const protect = async (req,res,next) => {
     try{
-    let token  = req.headers.authorization;
+    let token  =req.cookies.jwt || req.headers.authorization;
     if(token && token.startsWith('Bearer')){
         token = token.split(" ")[1];
+
+        // DECODE TOKEN
         const decoded = jwt.verify(token,process.env.JWT_SECRET);
         req.user = await User.findById(decoded.id).select('-password')
         next();

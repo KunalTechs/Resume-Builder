@@ -1,5 +1,6 @@
 import express from 'express';  
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import { connectDB } from './config/db.js';
 import userRoutes from './routes/authRoutes.js';        
@@ -17,7 +18,10 @@ connectDB();
 //MIDDLEWARE
 app.use(express.json());
 
+// COOKIE PARSER
+app.use(cookieParser());
 
+// ROUTES
 app.use('/api/users', userRoutes);
 
 const PORT = 3000;

@@ -7,6 +7,7 @@ const generateToken = (userId) =>{
     return jwt.sign({ id:userId},process.env.JWT_SECRET,{ expiresIn: '1h'})
 }
 
+
 // REGISTER USER
 export const register = async (req, res) => {
     try {
@@ -26,7 +27,19 @@ export const register = async (req, res) => {
         // CREATE NEW USER
         const user = new User({ name, email, password:hashedPassword });
         await user.save();
-        res.status(201).json({ _id : user._id, name: user.name, email: user.email, token: generateToken(user._id)   });
+
+        const token = generateToken(user._id);  
+
+        // Set JWT in HTTP-only cookieParser
+        res.cookie('jwt', token, {httpOnly: true,// can't be accessed via JS
+             secure: process.env.NODE_ENV === 'production',// only HTTPS in production
+             sameSite: 'Strict',// prevent CSRF
+              maxAge: 3600000 }); // 1 hour
+
+        res.status(201).json({ _id : user._id,
+             name: user.name,
+              email: user.email,
+               token: generateToken(user._id)  });
 
         // ERROR HANDLING
     } catch (error) {
@@ -51,7 +64,19 @@ export const login = async (req, res) => {
 
         }
 
-        res.status(200).json({ _id : user._id, name: user.name, email: user.email, token: generateToken(user._id)   });
+        const token = generateToken(user);
+
+        //Set JWT in HTTP-only cookieParser
+         res.cookie('jwt', token, {httpOnly: true,// can't be accessed via JS
+             secure: process.env.NODE_ENV === 'production',// only HTTPS in production
+             sameSite: 'Strict',// prevent CSRF
+              maxAge: 3600000 }); // 1 hour
+
+
+        res.status(200).json({ _id : user._id,
+             name: user.name,
+              email: user.email,
+               token: generateToken(user._id)  });
 
         // ERROR HANDLING
     } catch (error) {
