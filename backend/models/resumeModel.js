@@ -1,5 +1,6 @@
 import mongoose from "mongoose"; 
 
+
 const resumeSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId,
          ref: 'User',
@@ -13,7 +14,11 @@ const resumeSchema = new mongoose.Schema({
 
            },
            template: { type: String,
-            colorPalette: { String}
+            default: 'modern'
+            },
+            colorPalette: {
+                type: String,
+                default: 'blue'
             },
     personalInfo: {
         name: { type: String,
@@ -43,7 +48,7 @@ const resumeSchema = new mongoose.Schema({
         }
     ],
 
-    Skills: [
+    skills: [
         {
             name: { type: String }
         }
@@ -98,5 +103,6 @@ const resumeSchema = new mongoose.Schema({
     ]
 }, { timestamps: { createdAt: 'createdAt' , updatedAt: 'updatedAt'} });
 
-export const Resume = mongoose.model('Resume', resumeSchema);
+const Resume = mongoose.model('Resume', resumeSchema);
+export default Resume;
 
