@@ -6,16 +6,16 @@ import upload from '../middleware/uploadMiddleware.js';
 
 // UPLOAD IMAGE FUNCTION
 
-export const uploadResumeImage = (req, res) => {
+export const uploadResumeImages = (req, res) => {
     try{
-        upload.fields([{ name: 'thumbnail'},{ name: profileImage }])
+        upload.fields([{ name: 'thumbnail'},{ name: 'profileImage' }])
         (req, res, async (err) => {
             if(err){
                 return res.statusd(400).json({message:"File uplaod failed", error: err.message})
             }
 
             const resumeId = req.params.id;
-            const resume = await Resume.finOne({ _id: resumeId, userid: req.user.id })
+            const resume = await Resume.finOne({ _id: resumeId, user: req.user.id })
 
             if(!resume){
                 return res.status(404).json({message: 'Resume not found'});
@@ -43,7 +43,7 @@ export const uploadResumeImage = (req, res) => {
                     if(fs.existsSync(oldProfileImage)){
                         fs.unlinkSync(oldProfileImage);
                     }
-                    resume.profileinfo.profilepreviewUrl = `${baseUrl}/uploads/${newProfileImage.filename}`;
+                    resume.profileInfo.profilepreviewUrl = `${baseUrl}/uploads/${newProfileImage.filename}`;
 
                 }
 
@@ -57,3 +57,4 @@ export const uploadResumeImage = (req, res) => {
         console.error('Error uploading image:', error);
         res.status(500).json({message: 'Failed to upload image', error: error.message});
     }
+}

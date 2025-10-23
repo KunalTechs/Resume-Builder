@@ -94,16 +94,22 @@ export const createResume = async (req, res) => {
      
     
 
-    const newResume = await new Resume({
-        userid: req.user.id,
-        title,
-        ...defaultResumeData,
-        ...req.body
+    // **Create a new instance**
+    const newResume = new Resume({
+      user: req.user.id,
+      title,
+      ...defaultResumeData,
+      ...req.body
     });
-    res.status(201).json(newResume);
-} catch (error) {
-        res.status(500).json({ message: 'failed to createresume', error: error.message });
-    }
+
+    // **Save the instance**
+    const savedResume = await newResume.save();
+
+    res.status(201).json(savedResume);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'failed to createresume', error: error.message });
+  }
 };
 
 
@@ -122,7 +128,7 @@ export const getAllResumes = async (req, res) => {
 //GET RESUME BY ID
 export const getResumeById = async (req, res) => {
     try{
-        const resume = await Resume.findById({ _id: req.params.id,userId: req.user.id });
+        const resume = await Resume.findOne({ _id: req.params.id,userId: req.user.id });
 
         if(!resume){
             return res.status(404).json({ message: 'Resume not found' });

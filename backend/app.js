@@ -36,7 +36,7 @@ app.use('/api/resumes', resumeRouter);
 
 app.use('/uploads', express.static(path.join(__dirname, '/uploads'), {
     setHeaders: (res, path) => {
-        res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
 }}));
 
 const PORT = 3000;
