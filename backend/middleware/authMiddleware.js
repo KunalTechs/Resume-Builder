@@ -1,22 +1,28 @@
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
 
-// AUTH MIDDLEWARE TO PROTECT ROUTES
-export const protect = async (req,res,next) => {
-    try{
-    let token  =req.cookies.jwt || req.headers.authorization;
-    if(token && token.startsWith('Bearer')){
-        token = token.split(" ")[1];
+export const protect = async (req, res, next) => {
+  try {
+    let token;
 
-        // DECODE TOKEN
-        const decoded = jwt.verify(token,process.env.JWT_SECRET);
-        req.user = await User.findById(decoded.id).select('-password')
-        next();
-    } else {
-        req.status(401).json({ meassage: 'Not authorized, no Token Found' });
+    // Accept token from header or cookie
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt;
     }
-}
-catch(error){
-    res.status(401).json({message: 'Token failed', error: error.message});
-}
-}
+
+    if (!token) {
+      return res.status(401).json({ message: 'Not authorized, no token found' });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id).select('-password');
+
+    next();
+  } catch (error) {
+    console.error('Protect middleware error:', error.message);
+    res.status(401).json({ message: 'Token failed', error: error.message });
+  }
+};
