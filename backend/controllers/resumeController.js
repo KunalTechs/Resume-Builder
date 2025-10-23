@@ -6,106 +6,19 @@ import path from 'path';
 
 export const createResume = async (req, res) => {
     try {
+        const userId = req.user.id;
         const {title} = req.body;
-
-        //Default template
-        const defaultResumeData ={
-             
-
-    personalInfo: {
-        fullname:  '',
-            email: '',
-            phone: '',
-    },
-    contactInfo: {
-        address: '',
-        linkedin: '',
-        github: '',
-        website: ''
-    },
-    summary: '',
-
-    education: [
-        {
-            institution: '',
-            degree: '',
-            fieldofStudy: '',
-            StartDate: '',
-            endDate: '',
-            grade: '',
-            description: ''
-        }
-    ],
-
-    Skills: [
-        {
-            name: ''
-        }
-    ],
-
-    projects: [
-        {
-            title: '',
-            link: '',
-            description: ''
-        }
-    ],
-
-    certifications: [
-        {
-            title: '',   
-            issuer: '',
-            date: '',
-            description: ''
-        }
-    ],
-
-    languages: [
-        {
-            name: '',
-            proficiency: ''
-        }
-    ],
-
-    workexperience: [
-        {
-            company: '', 
-            position: '',
-            startDate: '',
-            endDate: '',
-            responsibilities: ''
-        },
-    ],
-
-    hobbies: [
-        {
-            name: ''
-        }
-    ],
-
-    references: [
-        {
-            name: '', 
-            contactInfo: '',
-            relationship: ''
-        }
-    ]
-        };
-     
-    
 
     // **Create a new instance**
     const newResume = new Resume({
-      user: req.user.id,
+      userId,
       title,
-      ...defaultResumeData,
-      ...req.body
     });
 
     // **Save the instance**
     const savedResume = await newResume.save();
 
-    res.status(201).json(savedResume);
+    res.status(201).json({message: 'Resume created successfully' ,savedResume});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'failed to createresume', error: error.message });
@@ -128,12 +41,20 @@ export const getAllResumes = async (req, res) => {
 //GET RESUME BY ID
 export const getResumeById = async (req, res) => {
     try{
-        const resume = await Resume.findOne({ _id: req.params.id,userId: req.user.id });
+        const userId = req.user.id;
+        const resumeId = req.params.id;
+        const resume = await Resume.findOne({ userId, _id: resumeId });
 
         if(!resume){
             return res.status(404).json({ message: 'Resume not found' });
         }
-        res.json(resume);
+
+        resume._v = undefined; // EXCLUDE __V FIELD
+        resume.createdAt = undefined; // EXCLUDE createdAt FIELD
+        resume.updatedAt = undefined; // EXCLUDE updatedAt FIELD
+
+
+        return res.status(200).json(resume);
     }
     catch (error) {
         res.status(500).json({ message: 'failed to get resume by id', error: error.message });
@@ -144,8 +65,13 @@ export const getResumeById = async (req, res) => {
 // UPDATE FUNCTION
 export const updateResume = async (req, res) => {
     try{
+        const userId = req.user.id;
+        const {resumeId, resumeData,resumeBackground} = req.params.id;
+        const image = req.file;
+
+        let resumeDataCopy = JSON.parse(resumeData);
         const updatedResume = await Resume.findOneAndUpdate(
-            { _id: req.params.id, userid: req.user.id })
+            { userId, _id: resumeId }, resumeDataCopy, { new: true })
             if(!updatedResume){
                 return res.status(404).json({ message: 'Resume not found or not authorized' });
     }
@@ -198,5 +124,23 @@ export const deleteResume = async (req, res) => {
         res.status(500).json({ message: 'failed to delete resume', error: error.message });
     }
 }
+
+
+//get rsume by public id
+export const getPublicResumeById = async (req, res) => {
+    try{
+        const resumeId = req.params.id;
+        const resume = await Resume.findOne({ _id: resumeId, public: true });
+
+        if(!resume){
+            return res.status(404).json({ message: 'Resume not found or not public' });
+        }       
+        return res.status(200).json(resume);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'failed to get public resume by id', error: error.message });
+    }
+}
+
 
     
