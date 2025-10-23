@@ -1,109 +1,51 @@
-import mongoose from "mongoose"; 
-
+import mongoose from 'mongoose';
 
 const resumeSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId,
-         ref: 'User',
-          required: true },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  public: {
+    type: Boolean,
+    default: false
+  },
+  template: {
+    type: String,
+    default: 'modern'
+  },
+  accentColor: {
+    type: String,
+    default: '#000000'
+  },
+  personalInfo: {
+    image: { type: String, default: '' },
+    fullname: { type: String, default: '' },
+    email: { type: String, default: '' },
+    phone: { type: String, default: '' }
+  },
 
-          title: {
-            type: String,
-            required: true
-          },
-          thumbnail: { type: String
+  education: [{
+    institution: { type: String, default: '' },
+    degree: { type: String, default: '' },
+    fieldofStudy: { type: String, default: '' },
+    StartDate: { type: String, default: '' },
+    endDate: { type: String, default: '' },
+    gpa: { type: String, default: '' },
+    description: { type: String, default: '' }
+  }],
 
-           },
-           template: { type: String,
-            
-            default: 'modern'
-            },
-            colorPalette: {
-                type: String,
-                default: 'blue'
-            },
-    personalInfo: {
-        name: { type: String,
-            required:true },
-            email: { type: String,
-                 required:true },
-            phone: { type: String,
-        }
-    },
-    contactInfo: {
-        address: { type: String },
-        linkedin: { type: String },
-        github: { type: String },
-        website: { type: String }
-    },
-    summary: { type: String },
-
-    education: [
-        {
-            institution: { type: String },
-            degree: { type: String },
-            fieldofStudy: { type: String },
-            StartDate: { type: String },
-            endDate: { type: String },
-            grade: { type: String },
-            description: { type: String }
-        }
-    ],
-
-    skills: [
-        {
-            name: { type: String }
-        }
-    ],
-
-    projects: [
-        {
-            title: { type: String },
-            link: { type: String },
-            description: { type: String }
-        }
-    ],
-
-    certifications: [
-        {
-            title: { type: String },   
-            issuer: { type: String },
-            date: { type: String },
-            description: { type: String }
-        }
-    ],
-
-    languages: [
-        {
-            name: { type: String },
-            proficiency: { type: String }
-        }
-    ],
-
-    workexperience: [
-        {
-            company: { type: String }, 
-            position: { type: String },
-            startDate: { type: String },
-            endDate: { type: String },
-            responsibilities: { type: String }
-        }
-    ],
-
-    hobbies: [
-        {
-            name: { type: String }
-        }
-    ],
-
-    references: [
-        {
-            name: { type: String }, 
-            contactInfo: { type: String },
-            relationship: { type: String }
-        }
-    ]
-}, { timestamps: { createdAt: 'createdAt' , updatedAt: 'updatedAt'} });
+  skills: [{ name: { type: String, default: '' } }],
+  projects: [{ title: { type: String, default: '' }, link: { type: String, default: '' }, description: { type: String, default: '' } }],
+  certifications: [{ title: { type: String, default: '' }, issuer: { type: String, default: '' }, date: { type: String, default: '' }, description: { type: String, default: '' } }],
+  languages: [{ name: { type: String, default: '' }, proficiency: { type: String, default: '' } }],
+  hobbies: [{ name: { type: String, default: '' } }],
+  references: [{ name: { type: String, default: '' }, contactInfo: { type: String, default: '' }, relationship: { type: String, default: '' } }]
+}, { timestamps: true });
 
 const Resume = mongoose.model('Resume', resumeSchema);
 export default Resume;
-
