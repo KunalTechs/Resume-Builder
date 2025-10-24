@@ -1,15 +1,15 @@
 import express from 'express';
 import {protect} from '../middleware/authMiddleware.js';
-import { createResume, getAllResumes, getResumeById, updateResume, deleteResume, } from '../controllers/resumeController.js'
-import { uploadResumeImages } from '../controllers/uploadImages.js';
-import  upload  from '../middleware/uploadMiddleware.js';   
+import { createResume, getAllResumes, getResumeById, updateResume, deleteResume, getPublicResumeById } from '../controllers/resumeController.js'
+import upload from '../config/multer.js';
+import { get } from 'mongoose';
 
 const resumeRouter = express.Router();
 
 resumeRouter.route('/').post(protect, createResume).get(protect, getAllResumes);
-resumeRouter.route('/:id').get(protect, getResumeById).put(protect, updateResume).delete(protect, deleteResume);
-resumeRouter.route('/:id/upload-images').post(protect, uploadResumeImages);
+resumeRouter.put('/update', upload.single('image'), protect, updateResume);
+resumeRouter.get('/get/:id', protect, getResumeById);
+resumeRouter.delete('/delete/:id', protect, deleteResume);
+resumeRouter.get('/public/:id', protect, getPublicResumeById);
 
 export default resumeRouter;
-
-// Note: uploadResumeImages middleware should be defined and imported if used in the route above.
