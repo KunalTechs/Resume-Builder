@@ -114,52 +114,20 @@ export const updateResume = async (req, res) => {
 // DELETE FUNCTION
 export const deleteResume = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const resumeId = req.params.id;
-    const deletedResume = await Resume.findOne({
-      userId, _id: resumeId,
-    });
-    if (!deletedResume) {
-      return res
-        .status(404)
-        .status({ message: "Resume not found or not authorized" });
-    }
-
-    // CREATE A UPLOADS FOLDER AND STOR THE RESUME THERE
-    const uplaodsFolder = path.join(process.cwd(), "uploads");
-
-    // DELETE THUMBNAIL IF IT EXISTS
-    if (deletedResume.thumbnailLink) {
-      const oldthumbnail = path.join(
-        uplaodsFolder,
-        path.basename(deletedResume.thumbnailLink)
-      );
-      if (fs.existsSync(oldthumbnail)) {
-        fs.unlinkSync(oldthumbnail);
-      }
-
-      if (resume.profileInfo?.profilepreviewUrl) {
-        const oldProfilePic = path.join(
-          uplaodsFolder,
-          path.basename(deletedResume.profileInfo.profilepreviewUrl)
-        );
-        if (fs.existsSync(oldProfilePic)) {
-          fs.unlinkSync(oldProfilePic);
-        }
-
+        const userId = req.user.id;
+        const resumeId = req.params.id;
+   
         // DELETE THE RESUME
-        const deleted = await Resume.findOneAndDelete({
+        const deleteResumes = await Resume.findOneAndDelete({
          userId, _id: resumeId,
         });
-        if (!deleted) {
+        if (!deleteResumes) {
           return res
             .status(404)
             .json({ message: "Resume not found or not authorized" });
         }
-        res.json({ message: "Resume deleted successfully", deleted });
-      }
-    }
-  } catch (error) {
+        res.json({ message: "Resume deleted successfully", deleteResumes });
+      } catch (error) {
     res
       .status(500)
       .json({ message: "failed to delete resume", error: error.message });
