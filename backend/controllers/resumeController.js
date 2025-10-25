@@ -16,9 +16,6 @@ export const createResume = async (req, res) => {
       title,
     });
 
-    // **Save the instance**
-    const savedResume = await newResume.save();
-
     res
       .status(201)
       .json({ message: "Resume created successfully", savedResume });
