@@ -26,3 +26,5 @@ export const protect = async (req, res, next) => {
     res.status(401).json({ message: 'Token failed', error: error.message });
   }
 };
+
+export default protect;
