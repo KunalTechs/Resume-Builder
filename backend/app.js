@@ -9,6 +9,7 @@ import userRoutes from './routes/authRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';  
 import resumeRouter from './routes/resumeRouter.js';  
+import aiRouter from './routes/aiRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +34,7 @@ app.use(cookieParser());
 // ROUTES
 app.use('/api/users', userRoutes);
 app.use('/api/resumes', resumeRouter);
+app.use('/api/ai', aiRouter); 
 
 app.use('/uploads', express.static(path.join(__dirname, '/uploads'), {
     setHeaders: (res, path) => {
