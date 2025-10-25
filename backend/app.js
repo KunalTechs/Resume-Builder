@@ -3,16 +3,10 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import { connectDB } from './config/db.js';
-import userRoutes from './routes/authRoutes.js'; 
-
-
-import path from 'path';
-import { fileURLToPath } from 'url';  
+import userRoutes from './routes/authRoutes.js';  
 import resumeRouter from './routes/resumeRouter.js';  
 import aiRouter from './routes/aiRoutes.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 
 const app = express();
@@ -36,10 +30,6 @@ app.use('/api/users', userRoutes);
 app.use('/api/resumes', resumeRouter);
 app.use('/api/ai', aiRouter); 
 
-app.use('/uploads', express.static(path.join(__dirname, '/uploads'), {
-    setHeaders: (res, path) => {
-        res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
-}}));
 
 const PORT = 3000;
 
