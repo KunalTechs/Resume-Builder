@@ -18,7 +18,7 @@ export const createResume = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: "Resume created successfully", savedResume });
+      .json({ message: "Resume created successfully", resume: newResume });
   } catch (error) {
     console.error(error);
     res
@@ -27,19 +27,7 @@ export const createResume = async (req, res) => {
   }
 };
 
-//GET FUNCTION
-export const getAllResumes = async (req, res) => {
-  try {
-    const resumes = await Resume.find({ userid: req.user.id }).sort({
-      updatedAt: -1,
-    });
-    res.json(resumes);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "failed to get resume", error: error.message });
-  }
-};
+
 
 //GET RESUME BY ID
 export const getResumeById = async (req, res) => {
