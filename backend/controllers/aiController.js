@@ -1,5 +1,5 @@
 import Resume from "../models/resumeModel.js";
-import  ai  from "../config/ai.js";
+import ai from "../config/ai.js";
 
 // controller for enchancing resume's professional summary using AI
 
@@ -16,8 +16,7 @@ export const enhanceProfessionalSummary = async (req, res) => {
       messages: [
         {
           role: "system",
-          content:
-            `You are an expert in resume writing.
+          content: `You are an expert in resume writing.
              Your task is to enchance the professsional summary of a resume. The summary 
              should be 1-2 sentences also highlighting key skills,experience, and career objectives.
               Make it comelling and ATS-friendly. and only return text no option or anything else.`,
@@ -38,7 +37,6 @@ export const enhanceProfessionalSummary = async (req, res) => {
     });
   }
 };
-
 
 // controller for enchancing a resume's job description using AI
 
@@ -81,15 +79,15 @@ export const enhanceJobDescription = async (req, res) => {
 
 export const uploadResume = async (req, res) => {
   try {
-    const {resumeText, title } = req.body;
+    const { resumeText, title } = req.body;
     const userId = req.user.id;
 
     if (!resumeText) {
-        return res.status(400).json({ message: "Missing required fields" });
-
+      return res.status(400).json({ message: "Missing required fields" });
     }
-    const systemPrompt = " Your are en expert AI Agent to extract data from resume."
-    
+    const systemPrompt =
+      " Your are en expert AI Agent to extract data from resume.";
+
     const userPrompt = ` Extract the following details from the resume: ${resumeText}
     
     provide the data in JSON format with following keys:
@@ -119,7 +117,7 @@ export const uploadResume = async (req, res) => {
   hobbies: [{ name: { type: String, default: '' } }],
   references: [{ name: { type: String, default: '' }, contactInfo: { type: String, default: '' }, relationship: { type: String, default: '' } }]}
     
-    `
+    `;
 
     const responese = await ai.chat.completions.create({
       model: process.env.OpenAI_MODEL_NAME,
@@ -135,8 +133,8 @@ export const uploadResume = async (req, res) => {
       ],
       resonse_format: {
         type: "json",
-  }
-  });
+      },
+    });
 
     const extractedData = responese.choices[0].message.content;
     const parsedData = JSON.parse(extractedData);

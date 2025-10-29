@@ -1,4 +1,4 @@
-import  imagekit from "@imagekit/nodejs";
+import imagekit from "@imagekit/nodejs";
 import Resume from "../models/resumeModel.js";
 import fs from "fs";
 import path from "path";
@@ -26,8 +26,6 @@ export const createResume = async (req, res) => {
       .json({ message: "failed to createresume", error: error.message });
   }
 };
-
-
 
 //GET RESUME BY ID
 export const getResumeById = async (req, res) => {
@@ -58,17 +56,19 @@ export const updateResume = async (req, res) => {
     const userId = req.user.id;
     const { resumeId, resumeData, resumeBackground } = req.params.id;
     const image = req.file;
-     let resumeDataCopy = JSON.parse(resumeData);
+    let resumeDataCopy = JSON.parse(resumeData);
 
     if (image) {
       const imageBufferData = fs.createReadStream(image.path);
       const response = await imagekit.Files.upload({
         file: imageBufferData,
         fileName: "resume.png",
-        folder: 'user-resumes',
-        transformation:{
-            pre: 'w-300,h-300,fo-face,z-0.75' + (resumeBackground ? ',e-bgremove' : '')
-        }
+        folder: "user-resumes",
+        transformation: {
+          pre:
+            "w-300,h-300,fo-face,z-0.75" +
+            (resumeBackground ? ",e-bgremove" : ""),
+        },
       });
 
       resumeDataCopy.personal_info.image = response.url;
@@ -99,20 +99,21 @@ export const updateResume = async (req, res) => {
 // DELETE FUNCTION
 export const deleteResume = async (req, res) => {
   try {
-        const userId = req.user.id;
-        const resumeId = req.params.id;
-   
-        // DELETE THE RESUME
-        const deleteResumes = await Resume.findOneAndDelete({
-         userId, _id: resumeId,
-        });
-        if (!deleteResumes) {
-          return res
-            .status(404)
-            .json({ message: "Resume not found or not authorized" });
-        }
-        res.json({ message: "Resume deleted successfully", deleteResumes });
-      } catch (error) {
+    const userId = req.user.id;
+    const resumeId = req.params.id;
+
+    // DELETE THE RESUME
+    const deleteResumes = await Resume.findOneAndDelete({
+      userId,
+      _id: resumeId,
+    });
+    if (!deleteResumes) {
+      return res
+        .status(404)
+        .json({ message: "Resume not found or not authorized" });
+    }
+    res.json({ message: "Resume deleted successfully", deleteResumes });
+  } catch (error) {
     res
       .status(500)
       .json({ message: "failed to delete resume", error: error.message });
@@ -132,11 +133,9 @@ export const getPublicResumeById = async (req, res) => {
     }
     return res.status(200).json(resume);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "failed to get public resume by id",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "failed to get public resume by id",
+      error: error.message,
+    });
   }
 };
