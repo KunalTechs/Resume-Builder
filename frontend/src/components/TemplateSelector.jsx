@@ -5,7 +5,7 @@ const TemplateSelector = ({ selectedTemplate, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const templates = [
-    {
+    { 
       id: "classic",
       name: "Classic",
       preview: "A clean and traditional resume style for a professional look",
