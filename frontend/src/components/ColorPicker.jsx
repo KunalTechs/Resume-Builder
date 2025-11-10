@@ -15,7 +15,7 @@ const ColorPicker = ({ selectedColor, onChange }) => {
     { name: "White", value: "white" },
   ];
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); 
 
   return (
     <div className="relative">
