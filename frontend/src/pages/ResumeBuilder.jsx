@@ -13,6 +13,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import PersonalInfoForm from "../components/PersonalInfoForm";
+import ResumePreview from "../components/ResumePreview";
+import TemplateSelector from "../components/TemplateSelector";
+import ColorPicker from "../components/ColorPicker";
+import ProffessionalSummary from "../components/ProffessionalSummary";
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
@@ -88,7 +92,26 @@ const ResumeBuilder = () => {
 
               {/* Section Navigation */}
               <div className="flex justify-between items-center mb-6 border-b border-gray-300 py-1">
-                <div></div>
+                {/* buttons for template select and change color of resume */}
+                <div className="flex items-center gap-3 mb-6 border-b border-gray-300 py-2">
+                  <TemplateSelector
+                    selectedTemplate={resumeData.template}
+                    onChange={(template) =>
+                      setResumeData((prev) => ({ ...prev, template }))
+                    }
+                  />
+
+                  <ColorPicker
+                    selectedColor={resumeData.accent_color}
+                    onChange={(color) =>
+                      setResumeData((prev) => ({
+                        ...prev,
+                        accent_color: color,
+                      }))
+                    }
+                  />
+                </div>
+
                 <div className="flex items-center">
                   {activeSectionIndex !== 0 && (
                     <button
@@ -98,7 +121,6 @@ const ResumeBuilder = () => {
                         )
                       }
                       className="flex items-center justify-center gap-1 p-3 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all "
-                      
                     >
                       <ChevronLeft className="size-4" /> Previous
                     </button>
@@ -119,7 +141,6 @@ const ResumeBuilder = () => {
                   </button>
                 </div>
               </div>
-              
 
               {/* Form content */}
               <div className="space-y-6">
@@ -136,12 +157,32 @@ const ResumeBuilder = () => {
                     setRemoveBackground={setRemovebackground}
                   />
                 )}
+                {activeSection.id === "summary" && (
+                  <ProffessionalSummary
+                    data={resumeData.professional_summary}
+                    onChange={(data) =>
+                      setResumeData((prev) => ({
+                        ...prev,
+                        professional_summary: data,
+                      }))
+                    }
+                    setResumeData={setResumeData}
+                  />
+                )}
               </div>
             </div>
           </div>
 
           {/* Right Panel - Preview */}
-          <div className="lg:col-span-7">{/* Preview content here */}</div>
+          <div className="lg:col-span-7 max-lg:mt-6">
+            <div>{/* buttons */}</div>
+
+            <ResumePreview
+              data={resumeData}
+              template={resumeData.template}
+              accentColor={resumeData.accent_color}
+            />
+          </div>
         </div>
       </div>
     </div>
