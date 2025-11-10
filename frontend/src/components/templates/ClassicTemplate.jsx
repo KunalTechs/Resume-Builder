@@ -1,6 +1,6 @@
 import { Mail, Phone, MapPin, Linkedin, Github,Globe } from "lucide-react";
 
-const ClassicTemplate = ({ data, accentColor }) => {
+const ClassicTemplate = ({ data, accentColor }) => { 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const [year, month] = dateStr.split("-");

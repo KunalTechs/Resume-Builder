@@ -27,7 +27,7 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     {data.personal_info?.website && (
                         <span className="break-all">{data.personal_info.website}</span>
                     )}
-                </div>
+                </div> 
             </header>
 
             {/* Professional Summary */}

@@ -86,7 +86,7 @@ const ModernTemplate = ({ data, accentColor }) => {
       </header>
 
       <div className="p-8">
-        {/* Professional Summary */}
+        {/* Professional Summary */} 
         {data.professional_summary && (
           <section className="mb-8">
             <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
