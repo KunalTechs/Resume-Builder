@@ -1,7 +1,7 @@
 import { Sparkles } from "lucide-react";
 import React from "react";
 
-const ProffessionalSummary = ({ data, onChange, setResumeData }) => {
+const ProffessionalSummary = ({ data, onChange, setResumeData }) => { 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
