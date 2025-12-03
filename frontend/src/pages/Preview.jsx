@@ -1,11 +1,60 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import ResumePreview from "../components/ResumePreview";
+import { dummyResumeData } from "../assets/assets";
+import { ArrowLeftIcon } from "lucide-react";
 
 const Preview = () => {
-  return (
-    <div>
-      <h1>Preview Page</h1>
-    </div>
-  )
-}
+  const { resumeId } = useParams();
 
-export default Preview
+  const [isLoading, setIsLoading] = useState(true);
+  const [resumeData, setresumeData] = useState(null);
+
+  const loadresume = () => {
+    const found = dummyResumeData.find(
+      (resume) => String(resume._id) === String(resumeId)
+    );
+
+    console.log("Found resume:", found);
+    setresumeData(found);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    loadresume();
+  }, [resumeId]);
+
+  if (isLoading) return <div className="text-center py-10">Loading...</div>;
+
+  if (!resumeData)
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-black">
+        <p className="text-center text-6xl text-slate-400 font-medium">
+          Resume not found
+        </p>
+        <a
+          href="/"
+          className="mt-6 bg-red-500 hover:bg-red-600 text-white rounded-full px-6 h-9 m-1 ring-offset-1 ring-1 ring-red-400 flex items-center transition-colors"
+        >
+          <ArrowLeftIcon className="mr-2 size-4" />
+          go to home page
+        </a>
+      </div>
+    );
+
+  return (
+    <div className="bg-gray-900">
+      <div className="max-w-3xl mx-auto py-10">
+        <ResumePreview
+          key={resumeData._id + resumeData.template} // even stronger
+          data={resumeData}
+          template={resumeData.template}
+          accentColor={resumeData.accent_color}
+          classes="py-4 bg-white"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Preview;
