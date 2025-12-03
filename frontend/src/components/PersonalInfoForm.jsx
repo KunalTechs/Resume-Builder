@@ -33,7 +33,7 @@ const PersonalInfoForm = ({
 
   return (
     <div>
-      <h3 className="text-lg font-semibold text-gray-600">Personal Information</h3>
+      <h3 className="text-lg font-semibold text-white">Personal Information</h3>
       <p className="text-sm text-gray-500">
         Get started with your personal information
       </p>
