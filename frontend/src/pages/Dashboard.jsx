@@ -9,6 +9,10 @@ import {
 } from "lucide-react";
 import { dummyResumeData } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import api from "../config/api"
+import toast from "react-hot-toast"
+import pdfToText from "react-pdftotext"
 
 const colors = [
   "rgba(99, 102, 241, 1)", // Indigo-500
@@ -18,7 +22,11 @@ const colors = [
   "rgba(79, 70, 229, 1)", // Indigo-600
 ];
 
-function Dashboard() {
+const Dashboard= ()=> {
+
+  const {user, token} = useSelector(state => state.auth)
+
+
   const [allResumes, setAllResumes] = useState([]);
   const [showCreateResume, setShowCreateResume] = useState(false);
   const [showUploadResume, setShowUploadResume] = useState(false);
@@ -26,25 +34,52 @@ function Dashboard() {
   const [resume, setResume] = useState(null);
   const [editResumeId, setEditResumeId] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const navigate = useNavigate();
 
   const loadAllResumes = async () => {
-    setAllResumes(dummyResumeData);
+    try {
+       const { data } = await api.get('/api/resumes' );
+       setAllResumes(data)
+      
+    } catch (error) {
+          toast.error(error.response?.data?.message || "Auth Error");
+    }
+  
   };
 
   // for popup message button to naviagte
   const createResume = async (event) => {
+  try {
     event.preventDefault();
-    setShowCreateResume(false);
-    navigate(`/app/builder/res123`);
-  };
+   
+    const { data } = await api.post('/api/resumes/create', { title });
+
+    setAllResumes([...allResumes, data.resume]);
+    navigate(`/app/builder/${data.resume._id}`);
+  } catch (error) {
+    
+    toast.error(error.response?.data?.message || "Auth Error");
+  }
+};
 
 
   // for popup message button to navigate
   const uploadResume = async (event) =>{
     event.preventDefault();
-    setShowUploadResume(false);
-    navigate(`/app/builder/res123`);
+    setIsLoading(true)
+    try {
+      const resumeText = await  pdfToText(resume)
+     const { data } = await api.post('/api/ai/upload-resume', { title, resumeText });
+     setTitle('')
+     setResume(null)
+     setShowUploadResume(false)
+     navigate(`/app/builder/${data.resumeId}`)
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message)
+    }
+   setIsLoading(false)
   }
 
   const editTitle = async (event) => {

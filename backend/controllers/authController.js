@@ -38,7 +38,7 @@ export const register = async (req, res) => {
     res.cookie("jwt", token, {
       httpOnly: true, // can't be accessed via JS
       secure: process.env.NODE_ENV === "production", // only HTTPS in production
-      sameSite: "Strict", // prevent CSRF
+      sameSite: "Lax", // prevent CSRF
       maxAge: 3600000,
     }); // 1 hour
 
@@ -77,7 +77,7 @@ export const login = async (req, res) => {
     res.cookie("jwt", token, {
       httpOnly: true, // can't be accessed via JS
       secure: process.env.NODE_ENV === "production", // only HTTPS in production
-      sameSite: "Strict", // prevent CSRF
+      sameSite: "Lax", // prevent CSRF
       maxAge: 3600000,
     }); // 1 hour
 
@@ -115,7 +115,7 @@ export const logout = async (req, res) => {
     res.cookie("jwt", "", {
       httpOnly: true,
       expires: new Date(0), // Set expiration to a past date to delete it immediately
-      sameSite: "Strict",
+      sameSite: "Lax",
       secure: process.env.NODE_ENV === "production",
     });
 

@@ -7,23 +7,41 @@ import path from "path";
 
 export const createResume = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.id; // From your 'protect' middleware
     const { title } = req.body;
 
-    // **Create a new instance**
+    // Use the field name 'user' as defined in your Schema
     const newResume = new Resume({
-      userId,
+      user: userId, 
       title,
     });
 
-    res
-      .status(201)
-      .json({ message: "Resume created successfully", resume: newResume });
+    // 🔥 SAVE to MongoDB
+    await newResume.save();
+
+    res.status(201).json({ 
+      message: "Resume created successfully", 
+      resume: newResume 
+    });
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "failed to createresume", error: error.message });
+    console.error("Create Resume Error:", error);
+    res.status(500).json({ 
+      message: "Failed to create resume", 
+      error: error.message 
+    });
+  }
+};
+
+// GET ALL RESUMES FOR LOGGED IN USER
+export const getAllResumes = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    // Find resumes where 'user' matches the logged-in ID
+    const resumes = await Resume.find({ user: userId }).sort({ updatedAt: -1 });
+    
+    res.status(200).json(resumes);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch resumes", error: error.message });
   }
 };
 

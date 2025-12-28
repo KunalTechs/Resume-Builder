@@ -2,6 +2,7 @@ import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
 import {
   createResume,
+  getAllResumes,
   getResumeById,
   updateResume,
   deleteResume,
@@ -12,7 +13,8 @@ import { get } from "mongoose";
 
 const resumeRouter = express.Router();
 
-resumeRouter.route("/").post(protect, createResume);
+resumeRouter.route("/create").post(protect, createResume);
+resumeRouter.get("/", protect, getAllResumes);
 resumeRouter.put("/update", upload.single("image"), protect, updateResume);
 resumeRouter.get("/get/:id", protect, getResumeById);
 resumeRouter.delete("/delete/:id", protect, deleteResume);

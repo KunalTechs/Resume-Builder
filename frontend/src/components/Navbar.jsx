@@ -10,20 +10,15 @@ const Navbar = () => {
   const { user } = useSelector(state => state.auth);
 
   const logoutUser = async () => {
-    try {
-      // 🔥 Call backend logout
+   
       await api.post("/api/users/logout");
 
       // 🔥 Clear redux user
       dispatch(logout());
 
       // 🔥 Redirect to login
-      navigate("/login");
-
-    } catch (error) {
-      console.log("Logout error:", error);
-    }
-  };
+      navigate("/");
+}
 
   return (
     <div className='bg-gray-800 '>

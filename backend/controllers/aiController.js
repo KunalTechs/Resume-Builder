@@ -80,74 +80,34 @@ export const enhanceJobDescription = async (req, res) => {
 export const uploadResume = async (req, res) => {
   try {
     const { resumeText, title } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.id; 
 
     if (!resumeText) {
-      return res.status(400).json({ message: "Missing required fields" });
+      return res.status(400).json({ message: "No resume text provided" });
     }
-    const systemPrompt =
-      " Your are en expert AI Agent to extract data from resume.";
 
-    const userPrompt = ` Extract the following details from the resume: ${resumeText}
-    
-    provide the data in JSON format with following keys:
-
-    {
-    personalInfo: {
-    image: { type: String, default: '' },
-    fullname: { type: String, default: '' },
-    email: { type: String, default: '' },
-    phone: { type: String, default: '' }
-  },
-
-  education: [{
-    institution: { type: String, default: '' },
-    degree: { type: String, default: '' },
-    fieldofStudy: { type: String, default: '' },
-    StartDate: { type: String, default: '' },
-    endDate: { type: String, default: '' },
-    gpa: { type: String, default: '' },
-    description: { type: String, default: '' }
-  }],
-
-  skills: [{ name: { type: String, default: '' } }],
-  projects: [{ title: { type: String, default: '' }, link: { type: String, default: '' }, description: { type: String, default: '' } }],
-  certifications: [{ title: { type: String, default: '' }, issuer: { type: String, default: '' }, date: { type: String, default: '' }, description: { type: String, default: '' } }],
-  languages: [{ name: { type: String, default: '' }, proficiency: { type: String, default: '' } }],
-  hobbies: [{ name: { type: String, default: '' } }],
-  references: [{ name: { type: String, default: '' }, contactInfo: { type: String, default: '' }, relationship: { type: String, default: '' } }]}
-    
-    `;
-
-    const responese = await ai.chat.completions.create({
-      model: process.env.OpenAI_MODEL_NAME,
+    const response = await ai.chat.completions.create({
+      model: process.env.OpenAI_MODEL_NAME || "gpt-4-turbo-preview",
       messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: userPrompt,
-        },
+        { role: "system", content: "You are an expert AI. Always return JSON." },
+        { role: "user", content: `Extract data from this text into JSON: ${resumeText}` },
       ],
-      resonse_format: {
-        type: "json",
-      },
+      response_format: { type: "json_object" }, // Corrected spelling
     });
 
-    const extractedData = responese.choices[0].message.content;
+    const extractedData = response.choices[0].message.content;
     const parsedData = JSON.parse(extractedData);
-    const newResume = new Resume.create({
-      userId,
+
+    // Save to MongoDB
+    const newResume = await Resume.create({
+      user: userId, // Match your schema field name
       title,
       ...parsedData,
     });
+
     res.status(200).json({ resumeId: newResume._id });
   } catch (error) {
-    res.status(400).json({
-      message: "failed to enhance professional summary",
-      error: error.message,
-    });
+    console.error("Upload Error:", error);
+    res.status(500).json({ message: "Failed to process resume", error: error.message });
   }
 };
