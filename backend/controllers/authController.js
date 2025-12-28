@@ -23,13 +23,16 @@ export const register = async (req, res) => {
     }
     // HASH PASSWORD
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // CREATE NEW USER
-    const user = new User({ name, email, password: hashedPassword });
-    await user.save();
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
 
-    const token = generateToken(user._id);
+    const token = generateToken(newUser._id);
 
     // Set JWT in HTTP-only cookieParser
     res.cookie("jwt", token, {
@@ -39,14 +42,12 @@ export const register = async (req, res) => {
       maxAge: 3600000,
     }); // 1 hour
 
-    res
-      .status(201)
-      .json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id),
-      });
+    res.status(200).json({
+      message: "Registered successfully",
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+    });
 
     // ERROR HANDLING
   } catch (error) {
@@ -67,10 +68,10 @@ export const login = async (req, res) => {
     // CHECK IF PASSWORD IS CORRECT
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(500).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const token = generateToken(user);
+    const token = generateToken(user._id);
 
     //Set JWT in HTTP-only cookieParser
     res.cookie("jwt", token, {
@@ -80,20 +81,20 @@ export const login = async (req, res) => {
       maxAge: 3600000,
     }); // 1 hour
 
-    res
-      .status(200)
-      .json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id),
-      });
+     res.status(200).json({
+      message: "Login successful",
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      
+    });
 
     // ERROR HANDLING
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(400).json({ message: "Server error", error: error.message });
   }
 };
+
 
 // GET USER PROFILE
 export const getUserProfile = async (req, res) => {
@@ -103,6 +104,22 @@ export const getUserProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// LOGOUT USER
+export const logout = async (req, res) => {
+  try {
+    res.cookie("jwt", "", {
+      httpOnly: true,
+      expires: new Date(0), // Set expiration to a past date to delete it immediately
+      sameSite: "Strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
