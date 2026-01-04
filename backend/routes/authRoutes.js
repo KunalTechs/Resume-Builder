@@ -4,6 +4,7 @@ import {
   login,
   getUserProfile,
   logout,
+  getUserResumes,
 } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -14,6 +15,7 @@ userRouter.post("/register", register);
 userRouter.post("/login", login);
 userRouter.get("/profile", protect, getUserProfile);
 userRouter.post("/logout",logout);
+userRouter.get("/resumes", protect,getUserResumes);
 
 
 

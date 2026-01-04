@@ -89,8 +89,12 @@ export const uploadResume = async (req, res) => {
     const response = await ai.chat.completions.create({
       model: process.env.OpenAI_MODEL_NAME || "gpt-4-turbo-preview",
       messages: [
-        { role: "system", content: "You are an expert AI. Always return JSON." },
-        { role: "user", content: `Extract data from this text into JSON: ${resumeText}` },
+        { role: "system", content: `You are a Document Layout Expert. 
+      The provided text is from a multi-column PDF and might be jumbled. 
+      1. First, logically re-order the text so that headers and their respective body text are together.
+      2. Then, extract the data into this JSON format: { ...your schema... }.
+      3. If a section looks like a sidebar, treat it as a 'Skills' or 'Contact' section.` },
+        { role: "user", content: `Here is the raw text: ${resumeText}` },
       ],
       response_format: { type: "json_object" }, // Corrected spelling
     });
@@ -100,7 +104,7 @@ export const uploadResume = async (req, res) => {
 
     // Save to MongoDB
     const newResume = await Resume.create({
-      user: userId, // Match your schema field name
+      user: userId, 
       title,
       ...parsedData,
     });

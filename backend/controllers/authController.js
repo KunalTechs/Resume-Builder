@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import Resume from "../models/resumeModel.js"
 
 // GENERATE JWT TOKEN
 const generateToken = (userId) => {
@@ -122,5 +123,23 @@ export const logout = async (req, res) => {
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+export const getUserResumes = async (req, res) => {
+  try {
+    // req.user.id comes from your 'protect' middleware
+    const resumes = await Resume.find({ user: req.user.id });
+
+    res.status(200).json({
+      success: true,
+      resumes,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch resumes",
+      error: error.message
+    });
   }
 };
