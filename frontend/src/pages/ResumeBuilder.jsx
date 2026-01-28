@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { dummyResumeData } from "../assets/assets";
+import api from "../config/api"
 import {
   ArrowBigLeft,
   Briefcase,
@@ -26,9 +27,12 @@ import ExperienceForm from "../components/ExperienceForm";
 import EducationForm from "../components/EducationForm";
 import ProjectForm from "../components/ProjectForm";
 import SkillsForm from "../components/SkillsForm";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
+  const {token} = useSelector(state => state.auth)
 
   const [resumeData, setResumeData] = useState({
     _id: "",
@@ -44,18 +48,21 @@ const ResumeBuilder = () => {
     public: false,
   });
 
-  const loadExistingResume = async () => {
-    const resume = dummyResumeData.find((resume) => resume._id === resumeId);
-    if (resume) {
-      setResumeData(resume);
-      document.title = resume.title;
-    }
-  };
+const loadExistingResume = async () => {
+  try {
+    const { data } = await api.get('/api/resumes/get/' + resumeId);
+    
+    // Since the backend sends the object directly, 'data' IS the resume
+  
+  } catch (error) {
+    console.log("Load Error:", error.message);
+  }
+};
 
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
   const [removeBackground, setRemovebackground] = useState(false);
 
-  const sections = [
+   const sections = [
     { id: "personal", name: "personal Info", icon: User },
     { id: "summary", name: "Summary", icon: FileText },
     { id: "experience", name: "Experience", icon: Briefcase },
@@ -63,16 +70,27 @@ const ResumeBuilder = () => {
     { id: "project", name: "Projects", icon: Folder },
     { id: "skills", name: "Skills", icon: Sparkles },
   ];
-
   const activeSection = sections[activeSectionIndex];
 
-  useEffect(() => {
+ useEffect(() => {
     loadExistingResume();
   }, []);
 
   // Public and Private resume visiblity
   const changeResumeVisibility = async (params) => {
-    setResumeData({...resumeData, public: !resumeData.public })
+   try {
+    const formData = new FormData()
+    formData.append("resumeId", resumeId)
+    formData.append("resumeData", JSON.stringify({public: !resumeData.public}))
+
+    const {data} = await api.put('/api/resumes/update', formData)
+
+    setResumeData({...resumeData,public: !resumeData.public})
+    toast.success(data.message)
+    
+   } catch (error) {
+    console.error("Error saving resume:", error)
+   }
   }
 
   // for share the resume
@@ -92,6 +110,55 @@ const ResumeBuilder = () => {
     window.print();
   }
 
+ const saveResume = async () => {
+  try {
+    // 1. Clone the data
+    let updatedResumeData = structuredClone(resumeData);
+
+    // 2. Clean up IDs so MongoDB doesn't reject the update
+    delete updatedResumeData._id;
+    delete updatedResumeData.user;
+
+    // 3. Handle Image Logic (Aligning with Schema: personalInfo)
+    const currentImage = resumeData?.personalInfo?.image;
+    
+    if (typeof currentImage === 'object') {
+      // Remove the File object from JSON before stringifying
+      if (updatedResumeData.personalInfo) {
+        delete updatedResumeData.personalInfo.image;
+      }
+    }
+    
+    const formData = new FormData();
+    formData.append("resumeId", resumeId);
+    formData.append("resumeData", JSON.stringify(updatedResumeData));
+    
+    if (removeBackground) {
+      formData.append("removeBackground", "yes");
+    }
+    
+    // 4. Append the actual File to FormData if it's an object
+    if (currentImage instanceof File) {
+      formData.append("image", currentImage);
+    }
+
+    console.log("Sending clean data to server...");
+
+    const { data } = await api.put(`/api/resumes/update`, formData);
+    
+    // 5. Update state with the fresh data from MongoDB
+    if (data?.resume) {
+        setResumeData(data.resume);
+        toast.success(data.message || "Resume saved!");
+    }
+
+  } catch (error) {
+    console.error("Save Error:", error.response?.data || error.message);
+    toast.error(error.response?.data?.message || "Failed to save resume");
+  }
+};
+
+console.log("DEBUG - resumeData state:", resumeData);
   return (
     <div>
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -133,11 +200,11 @@ const ResumeBuilder = () => {
                   />
 
                   <ColorPicker
-                    selectedColor={resumeData.accent_color}
+                    selectedColor={resumeData.accentColor}
                     onChange={(color) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        accent_color: color,
+                       accentColor: color,
                       }))
                     }
                   />
@@ -177,11 +244,11 @@ const ResumeBuilder = () => {
               <div className="space-y-6">
                 {activeSection.id === "personal" && (
                   <PersonalInfoForm
-                    data={resumeData.personal_info}
+                    data={resumeData. personal_info}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        personal_info: data,
+                         personal_info: data,
                       }))
                     }
                     removeBackground={removeBackground}
@@ -194,7 +261,7 @@ const ResumeBuilder = () => {
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        professional_summary: data,
+                       professional_summary: data,
                       }))
                     }
                     setResumeData={setResumeData}
@@ -228,7 +295,7 @@ const ResumeBuilder = () => {
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        project: data,
+                       project: data,
                       }))
                     }
                   />
@@ -245,10 +312,13 @@ const ResumeBuilder = () => {
                   />
                 )}
               </div>
+              <button onClick={()=> {toast.promise(saveResume, {loading:'Saving...'})}} className="bg-gradient-to-br from-red-100 to-red-200 ring-red-300 text-red-600 ring hover:ring-red-400 transition-all rounded-md px-6 py-2 mt-6 text-sm">
+                Save Changes
+              </button>
             </div>
           </div>
 
-          {/* Right Panel - Preview */}
+         {/* Right Panel - Preview */}
           <div className="lg:col-span-7 max-lg:mt-6">
             <div className="relative w-full">
               <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2">
@@ -261,7 +331,7 @@ const ResumeBuilder = () => {
                   {resumeData.public ? <EyeIcon className="size-4"/>: <EyeOffIcon className="size-4"/> }
                   {resumeData.public ? "public" : "Private"}
                 </button>
-                <button onClick={downloadResume} className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring-transition-colors" >
+                <button onClick={downloadResume} className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-1 ring-green-300 hover:ring-green-400 transition-all shadow-sm" >
                   <DownloadIcon className="size-4"/>Download
                 </button>
 
@@ -271,7 +341,7 @@ const ResumeBuilder = () => {
             <ResumePreview
               data={resumeData}
               template={resumeData.template}
-              accentColor={resumeData.accent_color}
+               accentColor={resumeData.accent_color}
             />
           </div>
         </div>
