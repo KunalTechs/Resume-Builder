@@ -2,6 +2,7 @@ import imagekit from "@imagekit/nodejs";
 import Resume from "../models/resumeModel.js";
 import fs from "fs";
 import path from "path";
+import mongoose from "mongoose";
 
 // CREATE FUNCTION
 
@@ -48,72 +49,96 @@ export const getAllResumes = async (req, res) => {
 //GET RESUME BY ID
 export const getResumeById = async (req, res) => {
   try {
-    const userId = req.user.id;
+    // 1. FIX: Check your auth middleware. It usually sets req.user
+   const userId = req.user._id;
     const resumeId = req.params.id;
-    const resume = await Resume.findOne({ userId, _id: resumeId });
+
+    // 2. Query the DB
+    const resume = await Resume.findOne({ user: userId, _id: resumeId });
 
     if (!resume) {
       return res.status(404).json({ message: "Resume not found" });
     }
 
-    resume._v = undefined; // EXCLUDE __V FIELD
-    resume.createdAt = undefined; // EXCLUDE createdAt FIELD
-    resume.updatedAt = undefined; // EXCLUDE updatedAt FIELD
+    // 3. FIX: Convert to plain object to clean up fields properly
+    const resumeObj = resume.toObject();
+    delete resumeObj.__v;
+    delete resumeObj.createdAt;
+    delete resumeObj.updatedAt;
 
-    return res.status(200).json(resume);
+    return res.status(200).json(resumeObj);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "failed to get resume by id", error: error.message });
+    res.status(500).json({ 
+      message: "Failed to get resume by id", 
+      error: error.message 
+    });
   }
 };
-
 // UPDATE FUNCTION
 export const updateResume = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { resumeId, resumeData, resumeBackground } = req.params.id;
-    const image = req.file;
-    let resumeDataCopy = JSON.parse(resumeData);
+    // 1. Check User ID
+   const userId = req.user?._id || req.user?.id || req.userId;
+    
 
+    const { resumeId, resumeData, removeBackground } = req.body;
+    const image = req.file;
+
+    // 2. Safe Parsing (No await)
+    let resumeDataCopy;
+    try {
+      resumeDataCopy = typeof resumeData === 'string' ? JSON.parse(resumeData) : resumeData;
+      delete resumeDataCopy._id;
+    } catch (e) {
+      console.log("Debug: JSON Parse failed");
+      return res.status(400).json({ message: "Invalid data format" });
+    }
+
+    
+
+    // 3. Handle Image
     if (image) {
-      const imageBufferData = fs.createReadStream(image.path);
+      console.log("Debug: Processing image upload...");
+      const imageBufferData = fs.readFileSync(image.path); // More stable than createReadStream
       const response = await imagekit.Files.upload({
         file: imageBufferData,
         fileName: "resume.png",
         folder: "user-resumes",
-        transformation: {
-          pre:
-            "w-300,h-300,fo-face,z-0.75" +
-            (resumeBackground ? ",e-bgremove" : ""),
-        },
       });
 
-      resumeDataCopy.personal_info.image = response.url;
+      // SAFE ASSIGNMENT: Ensure personal_info exists
+      if (!resumeDataCopy.personalInfo) resumeDataCopy.personalInfo = {};
+      resumeDataCopy.personalInfo.image = response.url;
+      
+      // Clean up temp file
+      fs.unlinkSync(image.path);
+    }
+
+    // 4. The Database Call
+    console.log("Debug: Attempting DB update for resumeId:", resumeId);
+
+    if (resumeDataCopy.title === "") {
+      delete resumeDataCopy.title; 
     }
 
     const updatedResume = await Resume.findOneAndUpdate(
-      { userId, _id: resumeId },
+      { user: userId, _id: resumeId },
       resumeDataCopy,
-      { new: true }
+      { new: true, runValidators: true }
     );
+
     if (!updatedResume) {
-      return res
-        .status(404)
-        .json({ message: "Resume not found or not authorized" });
+      return res.status(404).json({ message: "Resume not found or not authorized" });
     }
-    // MERGE THE EXISTING DATA WITH THE NEW DATA
-    Object.assign(updatedResume, req.body);
-    // SAVE THE UPDATED RESUMES
-    const savedResume = await updatedResume.save();
-    res.json(savedResume);
+
+    res.json({ message: "Updated!", resume: updatedResume });
+
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "failed to update resume", error: error.message });
+    // THIS IS THE MOST IMPORTANT LOG
+    console.error("CRITICAL ERROR:", error.message); 
+    res.status(500).json({ message: "failed to save resume", error: error.message });
   }
 };
-
 // DELETE FUNCTION
 export const deleteResume = async (req, res) => {
   try {
@@ -122,7 +147,7 @@ export const deleteResume = async (req, res) => {
 
     // DELETE THE RESUME
     const deleteResumes = await Resume.findOneAndDelete({
-      userId,
+     user:userId,
       _id: resumeId,
     });
     if (!deleteResumes) {
@@ -138,7 +163,7 @@ export const deleteResume = async (req, res) => {
   }
 };
 
-//get rsume by public id
+//get resume by public id
 export const getPublicResumeById = async (req, res) => {
   try {
     const resumeId = req.params.id;
