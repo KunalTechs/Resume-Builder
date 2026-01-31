@@ -8,7 +8,6 @@ import {
   XIcon,
   LoaderCircleIcon,
 } from "lucide-react";
-import { dummyResumeData } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import api from "../config/api";
@@ -83,7 +82,7 @@ const Dashboard = () => {
   const editTitle = async (event) => {
     try {
       event.preventDefault();
-      const { data } = await api.put(`/api/resumes/update`,{resumeId: editResumeId, resumeData: {title}})
+     const { data } = await api.put(`/api/resumes/update/`,{resumeId:editResumeId, resumeData: {title}} );
      setAllResumes(prev => 
       prev.map(resume => resume._id === editResumeId ? { ...resume, title } : resume)
     );
