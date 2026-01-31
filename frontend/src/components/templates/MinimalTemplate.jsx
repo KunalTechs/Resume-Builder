@@ -14,7 +14,7 @@ const MinimalTemplate = ({ data, accentColor }) => {
             {/* Header */}
             <header className="mb-10">
                 <h1 className="text-4xl font-thin mb-4 tracking-wide">
-                    {data.personal_info?.full_name || "Your Name"}
+                    {data.personal_info?.fullname || "Your Name"}
                 </h1>
 
                 <div className="flex flex-wrap gap-6 text-sm text-gray-600">
@@ -23,6 +23,8 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     {data.personal_info?.location && <span>{data.personal_info.location}</span>}
                     {data.personal_info?.linkedin && (
                         <span className="break-all">{data.personal_info.linkedin}</span>
+                    )}{data.personal_info?.github && (
+                        <span className="break-all">{data.personal_info.github}</span>
                     )}
                     {data.personal_info?.website && (
                         <span className="break-all">{data.personal_info.website}</span>

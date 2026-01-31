@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Github, Globe } from "lucide-react";
 
 const MinimalImageTemplate = ({ data, accentColor }) => {
   const formatDate = (dateStr) => {
@@ -40,7 +40,7 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
         {/* Name + Title */}
         <div className="col-span-2 flex flex-col justify-center py-10 px-8">
           <h1 className="text-4xl font-bold text-zinc-700 tracking-widest">
-            {data.personal_info?.full_name || "Your Name"}
+            {data.personal_info?.fullname || "Your Name"}
           </h1>
           <p className="uppercase text-zinc-600 font-medium text-sm tracking-widest">
             {data?.personal_info?.profession || "Profession"}
@@ -73,6 +73,25 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
                   <span>{data.personal_info.location}</span>
                 </div>
               )}
+               {data.personal_info?.linkedin && (
+                <div className="flex items-center gap-2">
+                  <Linkedin size={14} style={{ color: accentColor }} />
+                  <span>{data.personal_info.linkedin}</span>
+                </div>
+              )}
+               {data.personal_info?.github && (
+                <div className="flex items-center gap-2">
+                  <Github size={14} style={{ color: accentColor }} />
+                  <span>{data.personal_info.github}</span>
+                </div>
+              )}
+              {data.personal_info?.website && (
+                <div className="flex items-center gap-2">
+                  <Globe size={14} style={{ color: accentColor }} />
+                  <span>{data.personal_info.website}</span>
+                </div>
+              )}
+
             </div>
           </section>
 
