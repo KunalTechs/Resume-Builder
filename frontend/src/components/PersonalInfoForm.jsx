@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BriefcaseBusiness,
   Github,
@@ -8,10 +9,10 @@ import {
   Phone,
   User,
 } from "lucide-react";
-import React from "react";
+
 
 const PersonalInfoForm = ({
-  data,
+  data={},
   onChange,
   removeBackground,
   setRemoveBackground,
@@ -21,7 +22,7 @@ const PersonalInfoForm = ({
   };
 
   const fields = [
-    { key: "full_name", label: "Full Name", icon: User, type: "text", required: true },
+    { key: "fullname", label: "Full Name", icon: User, type: "text", required: true },
     { key: "email", label: "Email Address", icon: Mail, type: "email", required: true },
     { key: "phone", label: "Phone Number", icon: Phone, type: "tel", required: true },
     { key: "location", label: "Location", icon: MapPin, type: "text", required: true },
