@@ -10,15 +10,28 @@ import {
   User,
 } from "lucide-react";
 
-
 const PersonalInfoForm = ({
-  data={},
-  onChange,
+  data = {},
+  onChange, // This is the function from the parent
   removeBackground,
   setRemoveBackground,
 }) => {
-  const handleChange = (field, value) => {
-    onChange({ ...data, [field]: value });
+  
+  // FIX 1: Rename this local function so it doesn't conflict with the state updater
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Call the parent's onChange function
+    onChange({ ...data, image: file });
+
+    // FIX 2: Clear input so the second upload of the same file works
+    e.target.value = null;
+  };
+
+  // FIX 3: Standardize text input changes
+  const handleTextChange = (key, value) => {
+    onChange({ ...data, [key]: value });
   };
 
   const fields = [
@@ -41,7 +54,7 @@ const PersonalInfoForm = ({
 
       {/* Image upload section */}
       <div className="flex items-center gap-4 mt-3">
-        <label>
+        <label className="cursor-pointer">
           {data.image ? (
             <img
               src={
@@ -53,8 +66,8 @@ const PersonalInfoForm = ({
               className="w-16 h-16 rounded-full border border-slate-200 object-cover ring-1 ring-slate-300 hover:opacity-80"
             />
           ) : (
-            <div className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-700 cursor-pointer">
-              <User className="size-10 p-2.5 border rounded-full border-slate-200" />
+            <div className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-300">
+              <User className="size-10 p-2.5 border rounded-full border-slate-700" />
               Upload Image
             </div>
           )}
@@ -62,26 +75,26 @@ const PersonalInfoForm = ({
             type="file"
             accept="image/jpeg, image/png, image/jpg"
             className="hidden"
-            onChange={(e) => handleChange("image", e.target.files[0])}
+            onChange={handleFileChange} // Use the specific file handler
           />
         </label>
 
-        {/* Remove background toggle */}
-        {typeof data.image === "object" && (
-          <div className="flex flex-col gap-1">
-            <p className="text-gray-600 text-sm">Remove Background</p>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                onChange={() => setRemoveBackground((prev) => !prev)}
-                checked={removeBackground}
-              />
-              <div className="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-red-600 transition-colors duration-200"></div>
-              <span className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-4"></span>
-            </label>
-          </div>
-        )}
+        {/* ✅ Ensure this exact structure in PersonalInfoForm.jsx */}
+{data.image && ( 
+  <div className="flex flex-col gap-1">
+    <p className="text-gray-400 text-sm">Remove Background</p>
+    <label className="relative inline-flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        onChange={() => setRemoveBackground((prev) => !prev)}
+        checked={removeBackground}
+      />
+      <div className="w-9 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 transition-colors duration-200"></div>
+      <span className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-4"></span>
+    </label>
+  </div>
+)}
       </div>
 
       {/* Input fields */}
@@ -89,7 +102,7 @@ const PersonalInfoForm = ({
         const Icon = field.icon;
         return (
           <div key={field.key} className="space-y-1 mt-5">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-600">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-400">
               <Icon className="size-4" />
               {field.label}
               {field.required && <span className="text-red-500">*</span>}
@@ -97,8 +110,8 @@ const PersonalInfoForm = ({
             <input
               type={field.type}
               value={data[field.key] || ""}
-              onChange={(e) => handleChange(field.key, e.target.value)}
-              className="mt-1 w-full px-3 py-2 text-white border border-gray-300 rounded-lg focus:ring focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-sm"
+              onChange={(e) => handleTextChange(field.key, e.target.value)}
+              className="mt-1 w-full px-3 py-2 text-white bg-black border border-slate-700 rounded-lg focus:ring focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-sm"
               placeholder={`Enter your ${field.label.toLowerCase()}`}
               required={field.required}
             />
