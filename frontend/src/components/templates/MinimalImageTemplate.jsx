@@ -1,113 +1,114 @@
 import { Mail, Phone, MapPin, Linkedin, Github, Globe } from "lucide-react";
+import React, { useMemo } from "react";
 
-const MinimalImageTemplate = ({ data, accentColor }) => {
+const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
+
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    const [year, month] = dateStr.split("-");
+    const parts = dateStr.split("-");
+    if (parts.length < 2) return dateStr;
+    const [year, month] = parts;
     return new Date(year, month - 1).toLocaleDateString("en-US", {
       year: "numeric",
-      month: "short", 
+      month: "short",
     });
   };
 
-  return (
-    <div className="max-w-5xl mx-auto bg-white text-zinc-800">
-      <div className="grid grid-cols-3">
-        <div className="col-span-1  py-10">
-          {/* Image */}
-          {data.personal_info?.image &&
-          typeof data.personal_info.image === "string" ? (
-            <div className="mb-6">
-              <img
-                src={data.personal_info.image}
-                alt="Profile"
-                className="w-32 h-32 object-cover rounded-full mx-auto"
-                style={{ background: accentColor + "70" }}
-              />
-            </div>
-          ) : data.personal_info?.image &&
-            typeof data.personal_info.image === "object" ? (
-            <div className="mb-6">
-              <img
-                src={URL.createObjectURL(data.personal_info.image)}
-                alt="Profile"
-                className="w-32 h-32 object-cover rounded-full mx-auto"
-              />
-            </div>
-          ) : null}
-        </div>
+  console.log("DEBUG - removeBackground value:", removeBackground);
+  // ✅ Handles image processing and forces browser refresh to show removed background
+const imageSrc = useMemo(() => {
+  const img = data?.personal_info?.image;
+  if (!img) return null;
 
-        {/* Name + Title */}
-        <div className="col-span-2 flex flex-col justify-center py-10 px-8">
-          <h1 className="text-4xl font-bold text-zinc-700 tracking-widest">
-            {data.personal_info?.fullname || "Your Name"}
-          </h1>
-          <p className="uppercase text-zinc-600 font-medium text-sm tracking-widest">
-            {data?.personal_info?.profession || "Profession"}
-          </p>
-        </div>
+  const cleanHex = accentColor?.replace("#", "") || "3B82F6";
+  const timestamp = Date.now();
+  
+ 
+  let transformations = "tr=fo-face,w-300,h-300,f-png";
+
+  if (removeBackground) {
+   
+    // This tells ImageKit to remove BG and inject the hex color
+   transformations += `:e-bgremove:bg-${cleanHex}`;
+  }
+
+  return `${img}?${transformations}&v=${timestamp}`;
+}, [data?.personal_info?.image, removeBackground, accentColor]);
+
+  return (
+   <div className="max-w-5xl mx-auto bg-white text-zinc-800 shadow-lg">
+    <div className="grid grid-cols-3">
+      <div className="col-span-1 py-10">
+        {imageSrc && (
+          <div className="mb-6 flex justify-center">
+            {/* The border color still uses the accentColor */}
+            <div 
+              className="w-32 h-32 rounded-full overflow-hidden border-4 shadow-sm"
+              style={{ borderColor: accentColor }}
+            >
+              <img
+                src={imageSrc}
+                alt="Profile"
+                className="w-full h-full object-cover" 
+                
+                
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+{/* Name + Title */}
+<div className="col-span-2 flex flex-col justify-center py-10 px-8">
+  <h1 className="text-4xl font-bold text-zinc-700 tracking-widest uppercase">
+    {data.personal_info?.fullname || "Your Name"}
+  </h1>
+  <p className="uppercase text-zinc-600 font-medium text-sm tracking-widest mt-2">
+    {data?.personal_info?.profession }
+  </p>
+</div>
 
         {/* Left Sidebar */}
-        <aside className="col-span-1 border-r border-zinc-400 p-6 pt-0">
+        <aside className="col-span-1 border-r border-zinc-200 p-6 pt-0">
           {/* Contact */}
           <section className="mb-8">
-            <h2 className="text-sm font-semibold tracking-widest text-zinc-600 mb-3">
-              CONTACT
+            <h2 className="text-xs font-bold tracking-[0.2em] text-zinc-400 mb-4 uppercase">
+              Contact
             </h2>
-            <div className="space-y-2 text-sm">
-              {data.personal_info?.phone && (
-                <div className="flex items-center gap-2">
-                  <Phone size={14} style={{ color: accentColor }} />
-                  <span>{data.personal_info.phone}</span>
-                </div>
+            <div className="space-y-3 text-sm">
+              {[
+                { icon: Phone, value: data.personal_info?.phone },
+                { icon: Mail, value: data.personal_info?.email },
+                { icon: MapPin, value: data.personal_info?.location },
+                { icon: Linkedin, value: data.personal_info?.linkedin },
+                { icon: Github, value: data.personal_info?.github },
+                { icon: Globe, value: data.personal_info?.website },
+              ].map((item, i) => 
+                item.value && (
+                  <div key={i} className="flex items-center gap-3">
+                    <item.icon size={14} style={{ color: accentColor }} />
+                    <span className="truncate">{item.value}</span>
+                  </div>
+                )
               )}
-              {data.personal_info?.email && (
-                <div className="flex items-center gap-2">
-                  <Mail size={14} style={{ color: accentColor }} />
-                  <span>{data.personal_info.email}</span>
-                </div>
-              )}
-              {data.personal_info?.location && (
-                <div className="flex items-center gap-2">
-                  <MapPin size={14} style={{ color: accentColor }} />
-                  <span>{data.personal_info.location}</span>
-                </div>
-              )}
-               {data.personal_info?.linkedin && (
-                <div className="flex items-center gap-2">
-                  <Linkedin size={14} style={{ color: accentColor }} />
-                  <span>{data.personal_info.linkedin}</span>
-                </div>
-              )}
-               {data.personal_info?.github && (
-                <div className="flex items-center gap-2">
-                  <Github size={14} style={{ color: accentColor }} />
-                  <span>{data.personal_info.github}</span>
-                </div>
-              )}
-              {data.personal_info?.website && (
-                <div className="flex items-center gap-2">
-                  <Globe size={14} style={{ color: accentColor }} />
-                  <span>{data.personal_info.website}</span>
-                </div>
-              )}
-
             </div>
           </section>
 
           {/* Education */}
-          {data.education && data.education.length > 0 && (
+          {data.education?.length > 0 && (
             <section className="mb-8">
-              <h2 className="text-sm font-semibold tracking-widest text-zinc-600 mb-3">
-                EDUCATION
+              <h2 className="text-xs font-bold tracking-[0.2em] text-zinc-400 mb-4 uppercase">
+                Education
               </h2>
               <div className="space-y-4 text-sm">
                 {data.education.map((edu, index) => (
                   <div key={index}>
-                    <p className="font-semibold uppercase">{edu.degree}</p>
-                    <p className="text-zinc-600">{edu.institution}</p>
-                    <p className="text-xs text-zinc-500">
-                      {formatDate(edu.graduation_date)}
+                    <p className="font-semibold uppercase text-zinc-700">{edu.degree} {edu.field && `in ${edu.field}`}</p>
+                    <p className="text-zinc-500 italic">{edu.institution}</p>
+                    <p className="text-[10px] text-zinc-400 font-medium mt-1">
+                       <span>{formatDate(edu.end_date)}</span>
+                      {edu.gpa && <span> GPA: {edu.gpa}</span>}
                     </p>
                   </div>
                 ))}
@@ -116,16 +117,18 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
           )}
 
           {/* Skills */}
-          {data.skills && data.skills.length > 0 && (
+          {data.skills?.length > 0 && data.skills[0] !== "" && (
             <section>
-              <h2 className="text-sm font-semibold tracking-widest text-zinc-600 mb-3">
-                SKILLS
+              <h2 className="text-xs font-bold tracking-[0.2em] text-zinc-400 mb-4 uppercase">
+                Skills
               </h2>
-              <ul className="space-y-1 text-sm">
+              <div className="flex flex-wrap gap-2 text-xs">
                 {data.skills.map((skill, index) => (
-                  <li key={index}>{skill}</li>
+                  <span key={index} className="bg-zinc-100 px-2 py-1 rounded text-zinc-600">
+                    {skill}
+                  </span>
                 ))}
-              </ul>
+              </div>
             </section>
           )}
         </aside>
@@ -134,50 +137,35 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
         <main className="col-span-2 p-8 pt-0">
           {/* Summary */}
           {data.professional_summary && (
-            <section className="mb-8">
-              <h2
-                className="text-sm font-semibold tracking-widest mb-3"
-                style={{ color: accentColor }}
-              >
-                SUMMARY
+            <section className="mb-10">
+              <h2 className="text-xs font-bold tracking-[0.2em] mb-4 uppercase" style={{ color: accentColor }}>
+                Professional Summary
               </h2>
-              <p className="text-zinc-700 leading-relaxed">
+              <p className="text-sm text-zinc-600 leading-relaxed text-justify">
                 {data.professional_summary}
               </p>
             </section>
           )}
 
           {/* Experience */}
-          {data.experience && data.experience.length > 0 && (
-            <section>
-              <h2
-                className="text-sm font-semibold tracking-widest mb-4"
-                style={{ color: accentColor }}
-              >
-                EXPERIENCE
+          {data.experience?.length > 0 && (
+            <section className="mb-10">
+              <h2 className="text-xs font-bold tracking-[0.2em] mb-6 uppercase" style={{ color: accentColor }}>
+                Experience
               </h2>
-              <div className="space-y-6 mb-8">
+              <div className="space-y-8">
                 {data.experience.map((exp, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-semibold text-zinc-900">
-                        {exp.position}
-                      </h3>
-                      <span className="text-xs text-zinc-500">
-                        {formatDate(exp.start_date)} -{" "}
-                        {exp.is_current ? "Present" : formatDate(exp.end_date)}
+                  <div key={index} className="relative pl-4 border-l-2" style={{ borderColor: accentColor + "20" }}>
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="font-bold text-zinc-800">{exp.position}</h3>
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase">
+                        {formatDate(exp.start_date)} — {exp.is_current ? "Present" : formatDate(exp.end_date)}
                       </span>
                     </div>
-                    <p className="text-sm mb-2" style={{ color: accentColor }}>
-                      {exp.company}
+                    <p className="text-sm font-medium mb-2" style={{ color: accentColor }}>{exp.company}</p>
+                    <p className="text-xs text-zinc-500 leading-relaxed whitespace-pre-line">
+                      {exp.description}
                     </p>
-                    {exp.description && (
-                      <ul className="list-disc list-inside text-sm text-zinc-700 leading-relaxed space-y-1">
-                        {exp.description.split("\n").map((line, i) => (
-                          <li key={i}>{line}</li>
-                        ))}
-                      </ul>
-                    )}
                   </div>
                 ))}
               </div>
@@ -185,30 +173,19 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
           )}
 
           {/* Projects */}
-          {data.project && data.project.length > 0 && (
+          {data.project?.length > 0 && (
             <section>
-              <h2
-                className="text-sm uppercase tracking-widest font-semibold"
-                style={{ color: accentColor }}
-              >
-                PROJECTS
+              <h2 className="text-xs font-bold tracking-[0.2em] mb-6 uppercase" style={{ color: accentColor }}>
+                Key Projects
               </h2>
-              <div className="space-y-4">
-                {data.project.map((project, index) => (
+              <div className="grid grid-cols-1 gap-6">
+                {data.project.map((proj, index) => (
                   <div key={index}>
-                    <h3 className="text-md font-medium text-zinc-800 mt-3">
-                      {project.name}
-                    </h3>
-                    <p className="text-sm mb-1" style={{ color: accentColor }}>
-                      {project.type}
+                    <h3 className="text font-bold text-zinc-800">{proj.name}</h3>
+                     <p className="text-sm font-medium mb-2" style={{ color: accentColor }}>{proj.type}</p>
+                    <p className="text-sm text-zinc-500 leading-relaxed">
+                      {proj.description}
                     </p>
-                    {project.description && (
-                      <ul className="list-disc list-inside text-sm text-zinc-700  space-y-1">
-                        {project.description.split("\n").map((line, i) => (
-                          <li key={i}>{line}</li>
-                        ))}
-                      </ul>
-                    )}
                   </div>
                 ))}
               </div>
