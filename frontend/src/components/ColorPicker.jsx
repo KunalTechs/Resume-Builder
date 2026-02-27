@@ -3,18 +3,19 @@ import { Check, Palette } from "lucide-react";
 
 const ColorPicker = ({ selectedColor, onChange }) => {
   const colors = [
-    { name: "Blue", value: "blue" },
-    { name: "Red", value: "red" },
-    { name: "Green", value: "green" },
-    { name: "Orange", value: "orange" },
-    { name: "Purple", value: "purple" },
-    { name: "Pink", value: "pink" },
-    { name: "Yellow", value: "yellow" },
-    { name: "Indigo", value: "indigo" },
-    { name: "Black", value: "black" },
-    { name: "White", value: "white" },
+    { name: "Blue", value: "#3B82F6" },
+    { name: "Red", value: "#EF4444" },
+    { name: "Green", value: "#22C55E" },
+    { name: "Orange", value: "#F97316" },
+    { name: "Purple", value: "#A855F7" },
+    { name: "Pink", value: "#EC4899" },
+    { name: "Yellow", value: "#EAB308" },
+    { name: "Indigo", value: "#6366F1" },
+    { name: "Black", value: "#000000" },
+    { name: "Gray", value: "#6B7280" }, // Replaced White with Gray for visibility
   ];
 
+  // ... rest of your component code remains the same
   const [isOpen, setIsOpen] = useState(false); 
 
   return (
