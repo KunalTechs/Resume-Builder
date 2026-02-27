@@ -16,9 +16,9 @@ const Preview = () => {
       // Fetch from your MongoDB backend
       const { data } = await api.get(`/api/resumes/get/${resumeId}`);
       
-      if (data) {
-        console.log("Real DB Data:", data);
-        // Ensure defaults so the template doesn't crash
+    if (data) {
+      // ✅ Sync the local toggle with whatever is saved in your DB
+      setRemoveBackground(data.removeBackground || false);
         setresumeData({
           ...data,
           personal_info: data.personal_info || {},
@@ -36,6 +36,8 @@ const Preview = () => {
     }
   };
 
+  // Inside your Preview component, before the useEffect
+const [removeBackground, setRemoveBackground] = useState(false); // ✅ Add this line
   useEffect(() => {
     if (resumeId) {
       loadresume();
@@ -67,28 +69,35 @@ const Preview = () => {
     );
   }
 
+
+
   return (
-    <div className="bg-gray-900 min-h-screen">
-      <div className="max-w-4xl mx-auto py-10 px-4">
-        {/* Navigation back to editor (only shows if user is editing their own) */}
-        <div className="mb-6 flex justify-between items-center">
+    /* 1. Added print:p-0 and print:bg-white to strip the dashboard background */
+    <div className="bg-gray-900 min-h-screen print:bg-white print:min-h-0 print:p-0">
+     
+        
+        {/* 2. Wrap this entire UI section in 'no-print' */}
+        <div className="no-print mb-6 flex justify-between items-center">
            <Link to="/" className="text-slate-400 hover:text-white flex items-center gap-2">
               <ArrowLeftIcon className="size-4" /> Dashboard
            </Link>
            <button 
              onClick={() => window.print()} 
-             className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+             className="bg-purple-600 text-white px-4 py-2 rounded-lg"
            >
              Download PDF
            </button>
         </div>
 
-        <div className="shadow-2xl">
+         <div className="max-w-4xl mx-auto py-10 print:p-0">
+        {/* 3. The ID is critical for the CSS in ResumePreview.jsx */}
+        <div id="resume-preview" className="shadow-2xl print:shadow-none print:m-0">
           <ResumePreview
             key={resumeData._id}
             data={resumeData}
             template={resumeData.template}
             accentColor={resumeData.accent_color}
+            removeBackground={removeBackground}
           />
         </div>
       </div>
