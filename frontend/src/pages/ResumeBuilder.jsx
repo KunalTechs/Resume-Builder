@@ -37,25 +37,57 @@ const ResumeBuilder = () => {
   const [resumeData, setResumeData] = useState({
     _id: "",
     title: "",
-    personal_info: {},
+     personal_info: {
+       image: "",
+      fullname: "",
+      email: "",
+      phone: "",
+      location: "",
+      profession: "",
+      linkedin: "",
+      github: "",
+      website: "",
+     
+    },
     professional_summary: " ",
     experience: [],
     education: [],
     project: [],
     skills: [],
     template: "classic",
-    accent_color: "rgba(79, 70, 229, 1)",
+    accent_color: "#4F46E5",
     public: false,
   });
 
+const [isLoading, setIsLoading] = useState(true); 
+
 const loadExistingResume = async () => {
   try {
+    // 1. Fetch the data
     const { data } = await api.get('/api/resumes/get/' + resumeId);
     
-    // Since the backend sends the object directly, 'data' IS the resume
-  
+    if (data) {
+      console.log("Resume data fetched successfully:", data);
+
+      // 2. Set the state with safe defaults
+      // This prevents the "Preview" from crashing if a section is empty in the DB
+      setResumeData({
+        ...data,
+        personal_info: data.personal_info || { fullname: "", email: "", phone: "", location: "" },
+        experience: data.experience || [],
+        education: data.education || [],
+        project: data.project || [],
+        skills: data.skills || []
+      });
+
+      // 3.Update the browser tab title to the resume title
+      if (data.title) {
+        document.title = `${data.title} | Resume Builder`;
+      }
+    }
   } catch (error) {
-    console.log("Load Error:", error.message);
+    console.error("Load Error:", error.message);
+    toast.error("Could not load your resume. Please try again.");
   }
 };
 
@@ -73,8 +105,12 @@ const loadExistingResume = async () => {
   const activeSection = sections[activeSectionIndex];
 
  useEffect(() => {
+  if (resumeId) {
     loadExistingResume();
-  }, []);
+  }
+}, [resumeId]); 
+
+  
 
   // Public and Private resume visiblity
   const changeResumeVisibility = async (params) => {
@@ -110,55 +146,42 @@ const loadExistingResume = async () => {
     window.print();
   }
 
- const saveResume = async () => {
+const saveResume = async () => {
   try {
-    // 1. Clone the data
-    let updatedResumeData = structuredClone(resumeData);
-
-    // 2. Clean up IDs so MongoDB doesn't reject the update
-    delete updatedResumeData._id;
-    delete updatedResumeData.user;
-
-    // 3. Handle Image Logic (Aligning with Schema: personalInfo)
-    const currentImage = resumeData?.personalInfo?.image;
-    
-    if (typeof currentImage === 'object') {
-      // Remove the File object from JSON before stringifying
-      if (updatedResumeData.personalInfo) {
-        delete updatedResumeData.personalInfo.image;
-      }
-    }
-    
     const formData = new FormData();
     formData.append("resumeId", resumeId);
-    formData.append("resumeData", JSON.stringify(updatedResumeData));
-    
-    if (removeBackground) {
-      formData.append("removeBackground", "yes");
-    }
-    
-    // 4. Append the actual File to FormData if it's an object
-    if (currentImage instanceof File) {
-      formData.append("image", currentImage);
-    }
 
-    console.log("Sending clean data to server...");
+   formData.append("removeBackground", String(removeBackground));
 
-    const { data } = await api.put(`/api/resumes/update`, formData);
-    
-    // 5. Update state with the fresh data from MongoDB
-    if (data?.resume) {
-        setResumeData(data.resume);
-        toast.success(data.message || "Resume saved!");
+    // 1. Create a clean copy of data for the JSON string
+    const dataToSend = JSON.parse(JSON.stringify(resumeData));
+
+    // 2. Handle the Image File
+    if (resumeData.personal_info?.image instanceof File) {
+      formData.append("image", resumeData.personal_info.image);
+      // Remove from JSON so we don't send a binary object in a string
+      if (dataToSend.personal_info) delete dataToSend.personal_info.image;
     }
 
+    formData.append("resumeData", JSON.stringify(dataToSend));
+
+    // 3. THE API CALL
+    const response = await api.put('/api/resumes/update', formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+
+    // 4. CRITICAL: Update state with the SERVER'S data
+    if (response.data?.resume) {
+      // This 'resume' object from the server now has the real ImageKit URL
+      setResumeData(response.data.resume); 
+      toast.success("Saved to Database!");
+    }
   } catch (error) {
-    console.error("Save Error:", error.response?.data || error.message);
-    toast.error(error.response?.data?.message || "Failed to save resume");
+    console.error("Save Error:", error);
+    toast.error("Save failed");
   }
 };
 
-console.log("DEBUG - resumeData state:", resumeData);
   return (
     <div>
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -200,11 +223,11 @@ console.log("DEBUG - resumeData state:", resumeData);
                   />
 
                   <ColorPicker
-                    selectedColor={resumeData.accentColor}
+                    selectedColor={resumeData.accent_color}
                     onChange={(color) =>
                       setResumeData((prev) => ({
                         ...prev,
-                       accentColor: color,
+                       accent_color: color,
                       }))
                     }
                   />
@@ -342,6 +365,7 @@ console.log("DEBUG - resumeData state:", resumeData);
               data={resumeData}
               template={resumeData.template}
                accentColor={resumeData.accent_color}
+               removeBackground={removeBackground}
             />
           </div>
         </div>
