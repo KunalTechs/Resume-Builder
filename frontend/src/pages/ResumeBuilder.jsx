@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { dummyResumeData } from "../assets/assets";
 import api from "../config/api"
 import {
-  ArrowBigLeft,
   Briefcase,
   FileText,
   Sparkles,
