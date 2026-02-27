@@ -80,19 +80,28 @@ const Dashboard = () => {
   };
 
   const editTitle = async (event) => {
-    try {
-      event.preventDefault();
-     const { data } = await api.put(`/api/resumes/update/`,{resumeId:editResumeId, resumeData: {title}} );
-     setAllResumes(prev => 
+  try {
+    event.preventDefault();
+    
+    // Create the payload to match backend expectations 
+    const payload = {
+      resumeId: editResumeId, // ✅ Changed from editResumeId to resumeId 
+      resumeData: JSON.stringify({ title }) // ✅ Stringified to match JSON.parse 
+    };
+
+    const { data } = await api.put(`/api/resumes/update`, payload); 
+    
+    setAllResumes(prev => 
       prev.map(resume => resume._id === editResumeId ? { ...resume, title } : resume)
     );
-      setTitle('')
-      setEditResumeId('');
-      toast.success(data.message)
-    } catch (error) {
-      toast.error(error?.response?.data?.message || error.message);
-    }
-  };
+    
+    setTitle('');
+    setEditResumeId('');
+    toast.success(data.message || "Title updated!"); 
+  } catch (error) {
+    toast.error(error?.response?.data?.message || error.message); 
+  }
+};
 
   const deleteResume = async (resumeId) => {
     try {
