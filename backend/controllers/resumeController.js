@@ -1,4 +1,5 @@
-import imagekit from "@imagekit/nodejs";
+
+import ik from "../config/ikConfig.js";
 import Resume from "../models/resumeModel.js";
 import fs from "fs";
 import path from "path";
@@ -8,10 +9,10 @@ import mongoose from "mongoose";
 
 export const createResume = async (req, res) => {
   try {
-    const userId = req.user.id; // From your 'protect' middleware
+    const userId = req.user.id;
     const { title } = req.body;
 
-    // Use the field name 'user' as defined in your Schema
+   
     const newResume = new Resume({
       user: userId, 
       title,
@@ -49,8 +50,8 @@ export const getAllResumes = async (req, res) => {
 //GET RESUME BY ID
 export const getResumeById = async (req, res) => {
   try {
-    // 1. FIX: Check your auth middleware. It usually sets req.user
-   const userId = req.user._id;
+    // 1.Checkauth middleware
+   const userId = req.user.id;
     const resumeId = req.params.id;
 
     // 2. Query the DB
@@ -77,68 +78,97 @@ export const getResumeById = async (req, res) => {
 // UPDATE FUNCTION
 export const updateResume = async (req, res) => {
   try {
-    // 1. Check User ID
-   const userId = req.user?._id || req.user?.id || req.userId;
-    
-
     const { resumeId, resumeData, removeBackground } = req.body;
-    const image = req.file;
+    const imageFile = req.file; // Provided by Multer
 
-    // 2. Safe Parsing (No await)
-    let resumeDataCopy;
-    try {
-      resumeDataCopy = typeof resumeData === 'string' ? JSON.parse(resumeData) : resumeData;
-      delete resumeDataCopy._id;
-    } catch (e) {
-      console.log("Debug: JSON Parse failed");
-      return res.status(400).json({ message: "Invalid data format" });
+    // 1. Parse the JSON data
+    let resumeDataCopy = JSON.parse(resumeData);
+
+    // 2. Prepare the Dot Notation update object (Prevents attribute deletion)
+    const updateObject = {};
+
+    // Map all fields except personal_info (standard mapping)
+    Object.keys(resumeDataCopy).forEach((key) => {
+      if (key !== "personal_info") {
+        updateObject[key] = resumeDataCopy[key];
+      }
+    });
+
+    // Map personal_info fields EXCEPT image to dot notation
+    if (resumeDataCopy.personal_info) {
+      Object.keys(resumeDataCopy.personal_info).forEach((key) => {
+        if (key !== "image") {
+          updateObject[`personal_info.${key}`] = resumeDataCopy.personal_info[key];
+        }
+      });
     }
 
+   
     
 
-    // 3. Handle Image
-    if (image) {
-      console.log("Debug: Processing image upload...");
-      const imageBufferData = fs.readFileSync(image.path); // More stable than createReadStream
-      const response = await imagekit.Files.upload({
-        file: imageBufferData,
-        fileName: "resume.png",
-        folder: "user-resumes",
-      });
+// Inside updateResume controller
+if (imageFile) {
+    const fileContent = fs.readFileSync(imageFile.path, { encoding: 'base64' });
+    const uploadMethod = ik.upload ? ik.upload.bind(ik) : ik.files.upload.bind(ik.files);
 
-      // SAFE ASSIGNMENT: Ensure personal_info exists
-      if (!resumeDataCopy.personalInfo) resumeDataCopy.personalInfo = {};
-      resumeDataCopy.personalInfo.image = response.url;
-      
-      // Clean up temp file
-      fs.unlinkSync(image.path);
+    const uploadOptions = {
+        file: fileContent,
+        fileName: `resume_${resumeId}_${Date.now()}.png`,
+        folder: "resumes",
+    };
+
+    // Use a string check for the boolean flag
+   if (String(removeBackground) === "true") {
+    console.log("✂️ Attempting Background Removal...");
+    uploadOptions.extensions = [
+        {
+            // ✅ 'google-segmentation' is more reliable for transparency
+            name: "google-segmentation", 
+            options: {
+                // ✅ Set bg_color to transparent so your accentColor works
+                bg_color: "transparent",
+                // ✅ Remove add_shadow if it's causing a white border/glow
+                add_shadow: false 
+            }
+        }
+    ];
+}
+
+    try {
+        const uploadResponse = await uploadMethod(uploadOptions);
+        console.log("✅ ImageKit Response:", uploadResponse.url);
+        
+        // Check if extension actually ran
+        if (uploadResponse.extensionStatus) {
+            console.log("Extension Status:", uploadResponse.extensionStatus);
+        }
+
+        updateObject["personal_info.image"] = uploadResponse.url;
+    } catch (uploadError) {
+        console.error("❌ ImageKit Extension Error:", uploadError.message);
+        // FALLBACK: If extension fails, upload without it so the user doesn't lose data
+        delete uploadOptions.extensions;
+        const fallbackResponse = await uploadMethod(uploadOptions);
+        updateObject["personal_info.image"] = fallbackResponse.url;
+        console.log("⚠️ Uploaded original image as fallback.");
     }
 
-    // 4. The Database Call
-    console.log("Debug: Attempting DB update for resumeId:", resumeId);
-
-    if (resumeDataCopy.title === "") {
-      delete resumeDataCopy.title; 
-    }
-
-    const updatedResume = await Resume.findOneAndUpdate(
-      { user: userId, _id: resumeId },
-      resumeDataCopy,
-      { new: true, runValidators: true }
+    fs.unlinkSync(imageFile.path); 
+}
+    // 4. Update the DB
+    const updated = await Resume.findOneAndUpdate(
+      { _id: resumeId },
+      { $set: updateObject }, // $set is crucial
+      { new: true }
     );
 
-    if (!updatedResume) {
-      return res.status(404).json({ message: "Resume not found or not authorized" });
-    }
-
-    res.json({ message: "Updated!", resume: updatedResume });
-
+    res.json({ success: true, resume: updated });
   } catch (error) {
-    // THIS IS THE MOST IMPORTANT LOG
-    console.error("CRITICAL ERROR:", error.message); 
-    res.status(500).json({ message: "failed to save resume", error: error.message });
+    console.error("Backend Error:", error.message);
+    res.status(500).json({ message: "Update failed", error: error.message });
   }
 };
+
 // DELETE FUNCTION
 export const deleteResume = async (req, res) => {
   try {

@@ -80,7 +80,7 @@ export const enhanceJobDescription = async (req, res) => {
 export const uploadResume = async (req, res) => {
   try {
     const { resumeText, title } = req.body;
-    const userId = req.user.id; 
+    const userId = req.user.id;
 
     if (!resumeText) {
       return res.status(400).json({ message: "No resume text provided" });
@@ -89,14 +89,74 @@ export const uploadResume = async (req, res) => {
     const response = await ai.chat.completions.create({
       model: process.env.OpenAI_MODEL_NAME || "gpt-4-turbo-preview",
       messages: [
-        { role: "system", content: `You are a Document Layout Expert. 
-      The provided text is from a multi-column PDF and might be jumbled. 
-      1. First, logically re-order the text so that headers and their respective body text are together.
-      2. Then, extract the data into this JSON format: { ...your schema... }.
-      3. If a section looks like a sidebar, treat it as a 'Skills' or 'Contact' section.` },
-        { role: "user", content: `Here is the raw text: ${resumeText}` },
+        {
+          role: "system",
+          content: `You are a Document Layout Expert. You will receive raw text from a resume (which may be jumbled from multi-column layouts). 
+    
+    ### Task:
+    1. Logically re-order text so headers and body text are correctly associated.
+    2. Extract all data into the EXACT JSON format specified below.
+    3. If a section is missing, return an empty string, empty array, or false as per the default values.
+
+    ### Target JSON Schema:
+    {
+      "personal_info": {
+        "fullname": "Extract name",
+        "email": "Extract email",
+        "phone": "Extract phone",
+        "location": "City, State/Country",
+        "profession": "Job title",
+        "linkedin": "Full URL",
+        "github": "Full URL",
+        "website": "Full URL",
+        "image": ""
+      },
+      "professional_summary": "Extracted summary",
+      "experience": [
+        {
+          "company": "",
+          "position": "Job title",
+          "start_date": "MMM YYYY",
+          "end_date": "MMM YYYY or 'Present'",
+          "is_current": true/false,
+          "description": "Bullet points"
+        }
       ],
-      response_format: { type: "json_object" }, // Corrected spelling
+      "education": [
+        {
+          "institution": "",
+          "degree": "",
+          "field": "Field of study",
+          "start_date": "",
+          "end_date": "",
+          "gpa": "",
+          "description": ""
+        }
+      ],
+      "project": [
+        {
+          "name": "Project title",
+          "link": "URL if available",
+          "description": ""
+        }
+      ],
+      "skills": ["List", "of", "strings"],
+      "certifications": [
+        {
+          "title": "",
+          "issuer": "",
+          "date": "",
+          "description": ""
+        }
+      ]
+    }`,
+        },
+        {
+          role: "user",
+          content: `Parse this resume text: ${resumeText}`,
+        },
+      ],
+      response_format: { type: "json_object" },
     });
 
     const extractedData = response.choices[0].message.content;
@@ -104,7 +164,7 @@ export const uploadResume = async (req, res) => {
 
     // Save to MongoDB
     const newResume = await Resume.create({
-      user: userId, 
+      user: userId,
       title,
       ...parsedData,
     });
@@ -112,6 +172,8 @@ export const uploadResume = async (req, res) => {
     res.status(200).json({ resumeId: newResume._id });
   } catch (error) {
     console.error("Upload Error:", error);
-    res.status(500).json({ message: "Failed to process resume", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to process resume", error: error.message });
   }
 };
