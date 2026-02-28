@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import api from "../config/api";
 import { logout } from "../app/features/authSlice";
@@ -7,39 +7,50 @@ import { logout } from "../app/features/authSlice";
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   const logoutUser = async () => {
-   
+    try {
       await api.post("/api/users/logout");
-
-      // 🔥 Clear redux user
       dispatch(logout());
-
-      // 🔥 Redirect to login
       navigate("/");
-}
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   return (
-    <div className='bg-gray-800 '>
-      <nav className='flex item-center justify-between max-w-7xl mx-auto px-4 py-3.5'>
-        <Link to='/'>
-          <img src="/logo.svg" alt="logo" className="h-11 w-auto" />
-        </Link>
+    <nav className="relative z-50 flex items-center justify-between w-full py-5 px-6 md:px-16 lg:px-24 xl:px-40 border-b border-white/10 backdrop-blur-sm bg-black/40 text-white">
+      {/* Updated Logo Style */}
+      <Link to="/" className="flex items-center gap-2">
+        <h2 className="text-2xl font-bold tracking-tighter">
+          RESUME<span className="text-red-600">BUILDER</span>
+        </h2>
+      </Link>
 
-        <div className='flex item-center gap-4 text-sm'>
-          <p className='text-gray-400 max-sm:hidden'>Hi, {user?.name}</p>
+      <div className="flex items-center gap-6">
+        {user && (
+          <div className="flex items-center gap-4 text-sm">
+            <p className="text-slate-400 max-sm:hidden">
+              Hi, <span className="text-white font-medium">{user.name}</span>
+            </p>
 
-          <button 
-            onClick={logoutUser} 
-            className='text-white bg-red-500 hover:bg-red-700 border border-gray-500 px-7 py-1.5 rounded-full'>
-            Logout
-          </button>
-        </div>
-      </nav>
-    </div>
+            <button
+              onClick={logoutUser}
+              className="px-6 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 rounded-full transition shadow-[0_0_15px_rgba(220,38,38,0.2)] active:scale-95"
+            >
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+        nav { font-family: 'Poppins', sans-serif; }
+      `}</style>
+    </nav>
   );
 };
 
 export default Navbar;
-
