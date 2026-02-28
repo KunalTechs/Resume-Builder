@@ -12,7 +12,7 @@ export const enhanceProfessionalSummary = async (req, res) => {
     }
 
     const responese = await ai.chat.completions.create({
-      model: process.env.OpenAI_MODEL_NAME,
+      model: process.env.OPENAI_MODEL_NAME,
       messages: [
         {
           role: "system",
@@ -49,7 +49,7 @@ export const enhanceJobDescription = async (req, res) => {
     }
 
     const responese = await ai.chat.completions.create({
-      model: process.env.OpenAI_MODEL_NAME,
+      model: process.env.OPENAI_MODEL_NAME,
       messages: [
         {
           role: "system",
@@ -87,7 +87,7 @@ export const uploadResume = async (req, res) => {
     }
 
     const response = await ai.chat.completions.create({
-      model: process.env.OpenAI_MODEL_NAME || "gpt-4-turbo-preview",
+      model: process.env.OPENAI_MODEL_NAME || "gpt-4-turbo-preview",
       messages: [
         {
           role: "system",
