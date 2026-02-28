@@ -6,52 +6,40 @@ import userRoutes from './routes/authRoutes.js';
 import resumeRouter from './routes/resumeRouter.js';  
 import aiRouter from './routes/aiRoutes.js';
 
-
-
 const app = express();
 
+// 1. CORS & PREFLIGHT (Keep this EXACTLY here)
 app.use((req, res, next) => {
-  // 1. Log the incoming request origin to the Railway console
-  console.log("Incoming Request Origin:", req.headers.origin);
-
-  // 2. Force the header to your specific frontend URL
-  res.setHeader('Access-Control-Allow-Origin', 'https://daring-youthfulness-production.up.railway.app');
+  // Use a variable to make it easier to debug
+  const origin = 'https://daring-youthfulness-production.up.railway.app';
   
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Set-Cookie');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.sendStatus(200);
   }
   next();
 });
 
+// 2. PARSERS & DB
 app.use(express.json());
-
-//Connected to database
-
+app.use(cookieParser());
 connectDB();
 
-//MIDDLEWARE
-app.use(express.json());
-
-
-// COOKIE PARSER
-app.use(cookieParser());
-
-// ROUTES
+// 3. ROUTES
 app.use('/api/users', userRoutes);
 app.use('/api/resumes', resumeRouter);
 app.use('/api/ai', aiRouter); 
 
-
-const PORT = process.env.PORT || 3000 ;
+const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('Server is live!');
 });
 
-app.listen(PORT,'0.0.0.0', () =>{
-    console.log(`Server running on adress http://localhost:${PORT}`);
-})
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
