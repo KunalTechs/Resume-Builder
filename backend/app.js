@@ -11,7 +11,7 @@ import aiRouter from './routes/aiRoutes.js';
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:5173', // <- your React dev server
+  origin: process.env.FRONTEND_URL, // <- your React dev server
   credentials: true,               // <- very important for cookies
 }));
 
@@ -34,7 +34,7 @@ app.use('/api/resumes', resumeRouter);
 app.use('/api/ai', aiRouter); 
 
 
-const PORT = 3000;
+const PORT = process.env.PORT;
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
