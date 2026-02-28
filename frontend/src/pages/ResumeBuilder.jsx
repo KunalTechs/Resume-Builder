@@ -111,21 +111,25 @@ const loadExistingResume = async () => {
   
 
   // Public and Private resume visiblity
-  const changeResumeVisibility = async (params) => {
-   try {
-    const formData = new FormData()
-    formData.append("resumeId", resumeId)
-    formData.append("resumeData", JSON.stringify({public: !resumeData.public}))
-
-    const {data} = await api.put('/api/resumes/update', formData)
-
-    setResumeData({...resumeData,public: !resumeData.public})
-    toast.success(data.message)
+ const changeResumeVisibility = async () => {
+  try {
+    const newVisibility = !resumeData.public;
     
-   } catch (error) {
-    console.error("Error saving resume:", error)
-   }
+    const formData = new FormData();
+    formData.append("resumeId", resumeId);
+    formData.append("resumeData", JSON.stringify({ public: newVisibility }));
+
+    const { data } = await api.put('/api/resumes/update', formData, {
+      headers: { "Content-Type": "multipart/form-data" } // ✅ add this
+    });
+
+    setResumeData(prev => ({ ...prev, public: newVisibility }));
+    toast.success(`Resume is now ${newVisibility ? "Public" : "Private"}`);
+  } catch (error) {
+    toast.error("Failed to update visibility");
+    console.error(error);
   }
+};
 
   // for share the resume
   const handleShare = ()=> {
