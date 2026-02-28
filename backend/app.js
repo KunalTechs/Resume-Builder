@@ -9,25 +9,21 @@ import aiRouter from './routes/aiRoutes.js';
 
 
 const app = express();
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  // Directly allow your frontend URL
-  if (origin === 'https://daring-youthfulness-production.up.railway.app') {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL.replace(/\/$/, "")) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
 
+app.use((req, res, next) => {
+  // 1. Log the incoming request origin to the Railway console
+  console.log("Incoming Request Origin:", req.headers.origin);
+
+  // 2. Force the header to your specific frontend URL
+  res.setHeader('Access-Control-Allow-Origin', 'https://daring-youthfulness-production.up.railway.app');
+  
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Set-Cookie');
 
-  // Handle the Preflight (OPTIONS) request immediately
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  
   next();
 });
 
