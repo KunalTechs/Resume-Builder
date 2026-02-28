@@ -9,11 +9,17 @@ import aiRouter from './routes/aiRoutes.js';
 const app = express();
 
 // 1. CORS & PREFLIGHT (Keep this EXACTLY here)
+// AFTER - allows both local dev and production
+const allowedOrigins = [
+  'https://daring-youthfulness-production.up.railway.app',
+  'http://localhost:5173',
+];
+
 app.use((req, res, next) => {
-  // Use a variable to make it easier to debug
-  const origin = 'https://daring-youthfulness-production.up.railway.app';
-  
-  res.setHeader('Access-Control-Allow-Origin', origin);
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
