@@ -10,9 +10,26 @@ import aiRouter from './routes/aiRoutes.js';
 
 
 const app = express();
+const allowedOrigins = [
+  'https://daring-youthfulness-production.up.railway.app', // Your specific frontend
+  process.env.FRONTEND_URL // Your variable from Railway
+].filter(Boolean); // Removes undefined if variable is missing
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // <- your React dev server
-  credentials: true,               // <- very important for cookies
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['set-cookie']
 }));
 
 app.use(express.json());
