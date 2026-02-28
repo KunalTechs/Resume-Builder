@@ -14,7 +14,7 @@ const Preview = () => {
     try {
       setIsLoading(true);
       // Fetch from your MongoDB backend
-      const { data } = await api.get(`/api/resumes/get/${resumeId}`);
+    const { data } = await api.get(`/api/resumes/public/${resumeId}`);
       
     if (data) {
       // ✅ Sync the local toggle with whatever is saved in your DB
