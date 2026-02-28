@@ -1,7 +1,7 @@
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Resume from "../models/resumeModel.js"
+import Resume from "../models/resumeModel.js";
 
 // GENERATE JWT TOKEN
 const generateToken = (userId) => {
@@ -37,11 +37,11 @@ export const register = async (req, res) => {
 
     // Set JWT in HTTP-only cookieParser
     res.cookie("jwt", token, {
-      httpOnly: true, // can't be accessed via JS
-      secure: process.env.NODE_ENV === "production", // only HTTPS in production
-      sameSite: "Lax", // prevent CSRF
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
       maxAge: 3600000,
-    }); // 1 hour
+    });
 
     res.status(200).json({
       message: "Registered successfully",
@@ -76,18 +76,17 @@ export const login = async (req, res) => {
 
     //Set JWT in HTTP-only cookieParser
     res.cookie("jwt", token, {
-      httpOnly: true, // can't be accessed via JS
-      secure: process.env.NODE_ENV === "production", // only HTTPS in production
-      sameSite: "Lax", // prevent CSRF
+      httpOnly: true,
+      secure: true, // always true (both are HTTPS)
+      sameSite: "None", // required for cross-origin
       maxAge: 3600000,
-    }); // 1 hour
+    });
 
-     res.status(200).json({
+    res.status(200).json({
       message: "Login successful",
       _id: user._id,
       name: user.name,
       email: user.email,
-      
     });
 
     // ERROR HANDLING
@@ -95,7 +94,6 @@ export const login = async (req, res) => {
     res.status(400).json({ message: "Server error", error: error.message });
   }
 };
-
 
 // GET USER PROFILE
 export const getUserProfile = async (req, res) => {
@@ -113,19 +111,18 @@ export const getUserProfile = async (req, res) => {
 // LOGOUT USER
 export const logout = async (req, res) => {
   try {
-    res.cookie("jwt", "", {
-      httpOnly: true,
-      expires: new Date(0), // Set expiration to a past date to delete it immediately
-      sameSite: "Lax",
-      secure: process.env.NODE_ENV === "production",
-    });
+   res.cookie("jwt", "", {
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+  expires: new Date(0),
+});
 
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 export const getUserResumes = async (req, res) => {
   try {
@@ -139,7 +136,7 @@ export const getUserResumes = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch resumes",
-      error: error.message
+      error: error.message,
     });
   }
 };
