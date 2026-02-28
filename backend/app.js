@@ -1,5 +1,4 @@
 import express from 'express';  
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import { connectDB } from './config/db.js';
@@ -10,27 +9,27 @@ import aiRouter from './routes/aiRoutes.js';
 
 
 const app = express();
-const allowedOrigins = [
-  'https://daring-youthfulness-production.up.railway.app', // Your specific frontend
-  process.env.FRONTEND_URL // Your variable from Railway
-].filter(Boolean); // Removes undefined if variable is missing
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Directly allow your frontend URL
+  if (origin === 'https://daring-youthfulness-production.up.railway.app') {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL.replace(/\/$/, "")) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-  exposedHeaders: ['set-cookie']
-}));
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Set-Cookie');
+
+  // Handle the Preflight (OPTIONS) request immediately
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
 
 app.use(express.json());
 
