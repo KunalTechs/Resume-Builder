@@ -8,9 +8,9 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 console.log("Endpoint Check:", process.env.IMAGEKIT_URL_ENDPOINT ? "Found" : "MISSING");
 
 const ik = new ImageKit({
-  publicKey: process.env.IMAGEKIT_PUBLIC_KEY.trim(),
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY.trim(),
-  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT.trim()
+publicKey: (process.env.IMAGEKIT_PUBLIC_KEY || '').trim(),
+  privateKey: (process.env.IMAGEKIT_PRIVATE_KEY || '').trim(),
+  urlEndpoint: (process.env.IMAGEKIT_URL_ENDPOINT || '').trim(),
 });
 
 
