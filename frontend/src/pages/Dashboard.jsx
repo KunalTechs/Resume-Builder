@@ -127,7 +127,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <p className="text-3xl font-semibold mb-10 bg-gradient-to-r from-indigo-400 to-blue-500 bg-clip-text text-transparent">
-          Welcome, Kunal
+          Welcome,  {user?.name}
         </p>
 
         {/* Action Buttons */}
