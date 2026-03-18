@@ -137,7 +137,10 @@ const ClassicTemplate = ({ data, accentColor }) => {
                 <div>
                   <li className="font-semibold text-gray-800 ">{proj.name}</li>
                   {proj.link && (
-                    <div className="flex items-center gap-1 text-sm text-blue-600">
+                    <div
+                      className="flex items-center gap-1 text-sm"
+                      style={{ color: accentColor }}
+                    >
                       <Globe className="size-3" />
                       <a
                         href={proj.link}
@@ -145,7 +148,7 @@ const ClassicTemplate = ({ data, accentColor }) => {
                         rel="noopener noreferrer"
                         className="break-all hover:underline"
                       >
-                       View Project
+                        View Project
                       </a>
                     </div>
                   )}

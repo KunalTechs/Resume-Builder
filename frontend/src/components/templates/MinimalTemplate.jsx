@@ -95,7 +95,8 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     href={proj.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm hover:underline"
+                    style={{ color: accentColor }}
                   >
                     View Project
                   </a>
