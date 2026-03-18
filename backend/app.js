@@ -12,7 +12,7 @@ const app = express();
 
 
 const allowedOrigins = [
-  "https://resume-builder-3tp2.vercel.app/",
+  "https://resume-builder-3tp2.vercel.app", 
   "http://localhost:5173",
 ];
 
