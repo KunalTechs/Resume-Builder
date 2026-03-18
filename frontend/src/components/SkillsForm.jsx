@@ -16,7 +16,7 @@ const SkillsForm = ({ data, onChange }) => {
   };
 
   const handleKeyPress = (e) => {
-    if (e.kay === "Enter") {
+    if (e.key === "Enter") {
       e.preventDefault();
       addSkill();
     }
@@ -34,11 +34,11 @@ const SkillsForm = ({ data, onChange }) => {
         </p>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
-          placeholder="Enters a skill (e.g., javaScript Project management"
-          className="flex-1 px-3 py-2 text-sm text-white border-2 border-gray-600  rounded-lg"
+          placeholder="Enter a skill (e.g., JavaScript, Project Management)"
+          className="flex-1 w-full px-3 py-2 text-sm text-white border-2 border-gray-600 rounded-lg"
           onChange={(e) => setNewSkill(e.target.value)}
           value={newSkill}
           onKeyDown={handleKeyPress}
@@ -46,7 +46,7 @@ const SkillsForm = ({ data, onChange }) => {
         <button
           onClick={addSkill}
           disabled={!newSkill.trim()}
-          className="flex items-center gap-2 px-3 py-1 text-sm bg-black text-orange-700 rounded hover:bg-orange-200 border transition-colors disabled:opacity-100 disabled:cursor-not-allowed"
+          className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-black text-orange-700 rounded hover:bg-orange-200 border transition-colors disabled:opacity-100 disabled:cursor-not-allowed w-full sm:w-auto"
         >
           <Plus className="size-4" /> Add
         </button>
