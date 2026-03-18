@@ -5,4 +5,6 @@ const ai = new OpenAI({
   baseURL: process.env.OPENAI_BASE_URL,
 });
 
+console.log("AI Config initialized with Key:", process.env.OPENAI_API_KEY ? "FOUND" : "MISSING");
+
 export default ai;

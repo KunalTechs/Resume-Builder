@@ -5,30 +5,32 @@ import { connectDB } from './config/db.js';
 import userRoutes from './routes/authRoutes.js';  
 import resumeRouter from './routes/resumeRouter.js';  
 import aiRouter from './routes/aiRoutes.js';
+import cors from "cors";
 
 const app = express();
 
-// 1. CORS & PREFLIGHT (Keep this EXACTLY here)
-// AFTER - allows both local dev and production
+
+
 const allowedOrigins = [
-  'https://daring-youthfulness-production.up.railway.app',
-  'http://localhost:5173',
+  "https://resume-builder-3tp2.vercel.app/",
+  "http://localhost:5173",
 ];
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (Postman, mobile apps)
+      if (!origin) return callback(null, true);
 
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("CORS not allowed"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 // 2. PARSERS & DB
 app.use(express.json());
