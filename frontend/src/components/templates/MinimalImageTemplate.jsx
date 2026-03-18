@@ -2,8 +2,6 @@ import { Mail, Phone, MapPin, Linkedin, Github, Globe } from "lucide-react";
 import React, { useMemo } from "react";
 
 const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
-
-
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const parts = dateStr.split("-");
@@ -17,57 +15,53 @@ const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
 
   console.log("DEBUG - removeBackground value:", removeBackground);
   // ✅ Handles image processing and forces browser refresh to show removed background
-const imageSrc = useMemo(() => {
-  const img = data?.personal_info?.image;
-  if (!img) return null;
+  const imageSrc = useMemo(() => {
+    const img = data?.personal_info?.image;
+    if (!img) return null;
 
-  const cleanHex = accentColor?.replace("#", "") || "3B82F6";
-  const timestamp = Date.now();
-  
- 
-  let transformations = "tr=fo-face,w-300,h-300,f-png";
+    const cleanHex = accentColor?.replace("#", "") || "3B82F6";
+    const timestamp = Date.now();
 
-  if (removeBackground) {
-   
-    // This tells ImageKit to remove BG and inject the hex color
-   transformations += `:e-bgremove:bg-${cleanHex}`;
-  }
+    let transformations = "tr=fo-face,w-300,h-300,f-png";
 
-  return `${img}?${transformations}&v=${timestamp}`;
-}, [data?.personal_info?.image, removeBackground, accentColor]);
+    if (removeBackground) {
+      // This tells ImageKit to remove BG and inject the hex color
+      transformations += `:e-bgremove:bg-${cleanHex}`;
+    }
+
+    return `${img}?${transformations}&v=${timestamp}`;
+  }, [data?.personal_info?.image, removeBackground, accentColor]);
 
   return (
-   <div className="max-w-5xl mx-auto bg-white text-zinc-800 shadow-lg">
-    <div className="grid grid-cols-3">
-      <div className="col-span-1 py-10">
-        {imageSrc && (
-          <div className="mb-6 flex justify-center">
-            {/* The border color still uses the accentColor */}
-            <div 
-              className="w-32 h-32 rounded-full overflow-hidden border-4 shadow-sm"
-              style={{ borderColor: accentColor }}
-            >
-              <img
-                src={imageSrc}
-                alt="Profile"
-                className="w-full h-full object-cover" 
-                
-                
-              />
+    <div className="max-w-5xl mx-auto bg-white text-zinc-800 shadow-lg">
+      <div className="grid grid-cols-3">
+        <div className="col-span-1 py-10">
+          {imageSrc && (
+            <div className="mb-6 flex justify-center">
+              {/* The border color still uses the accentColor */}
+              <div
+                className="w-32 h-32 rounded-full overflow-hidden border-4 shadow-sm"
+                style={{ borderColor: accentColor }}
+              >
+                <img
+                  src={imageSrc}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-{/* Name + Title */}
-<div className="col-span-2 flex flex-col justify-center py-10 px-8">
-  <h1 className="text-4xl font-bold text-zinc-700 tracking-widest uppercase">
-    {data.personal_info?.fullname || "Your Name"}
-  </h1>
-  <p className="uppercase text-zinc-600 font-medium text-sm tracking-widest mt-2">
-    {data?.personal_info?.profession }
-  </p>
-</div>
+        {/* Name + Title */}
+        <div className="col-span-2 flex flex-col justify-center py-10 px-8">
+          <h1 className="text-4xl font-bold text-zinc-700 tracking-widest uppercase">
+            {data.personal_info?.fullname || "Your Name"}
+          </h1>
+          <p className="uppercase text-zinc-600 font-medium text-sm tracking-widest mt-2">
+            {data?.personal_info?.profession}
+          </p>
+        </div>
 
         {/* Left Sidebar */}
         <aside className="col-span-1 border-r border-zinc-200 p-6 pt-0">
@@ -84,13 +78,14 @@ const imageSrc = useMemo(() => {
                 { icon: Linkedin, value: data.personal_info?.linkedin },
                 { icon: Github, value: data.personal_info?.github },
                 { icon: Globe, value: data.personal_info?.website },
-              ].map((item, i) => 
-                item.value && (
-                  <div key={i} className="flex items-center gap-3">
-                    <item.icon size={14} style={{ color: accentColor }} />
-                    <span className="truncate">{item.value}</span>
-                  </div>
-                )
+              ].map(
+                (item, i) =>
+                  item.value && (
+                    <div key={i} className="flex items-center gap-3">
+                      <item.icon size={14} style={{ color: accentColor }} />
+                      <span className="truncate">{item.value}</span>
+                    </div>
+                  ),
               )}
             </div>
           </section>
@@ -104,10 +99,12 @@ const imageSrc = useMemo(() => {
               <div className="space-y-4 text-sm">
                 {data.education.map((edu, index) => (
                   <div key={index}>
-                    <p className="font-semibold uppercase text-zinc-700">{edu.degree} {edu.field && `in ${edu.field}`}</p>
+                    <p className="font-semibold uppercase text-zinc-700">
+                      {edu.degree} {edu.field && `in ${edu.field}`}
+                    </p>
                     <p className="text-zinc-500 italic">{edu.institution}</p>
                     <p className="text-[10px] text-zinc-400 font-medium mt-1">
-                       <span>{formatDate(edu.end_date)}</span>
+                      <span>{formatDate(edu.end_date)}</span>
                       {edu.gpa && <span> GPA: {edu.gpa}</span>}
                     </p>
                   </div>
@@ -124,7 +121,10 @@ const imageSrc = useMemo(() => {
               </h2>
               <div className="flex flex-wrap gap-2 text-xs">
                 {data.skills.map((skill, index) => (
-                  <span key={index} className="bg-zinc-100 px-2 py-1 rounded text-zinc-600">
+                  <span
+                    key={index}
+                    className="bg-zinc-100 px-2 py-1 rounded text-zinc-600"
+                  >
                     {skill}
                   </span>
                 ))}
@@ -138,7 +138,10 @@ const imageSrc = useMemo(() => {
           {/* Summary */}
           {data.professional_summary && (
             <section className="mb-10">
-              <h2 className="text-xs font-bold tracking-[0.2em] mb-4 uppercase" style={{ color: accentColor }}>
+              <h2
+                className="text-xs font-bold tracking-[0.2em] mb-4 uppercase"
+                style={{ color: accentColor }}
+              >
                 Professional Summary
               </h2>
               <p className="text-sm text-zinc-600 leading-relaxed text-justify">
@@ -150,19 +153,34 @@ const imageSrc = useMemo(() => {
           {/* Experience */}
           {data.experience?.length > 0 && (
             <section className="mb-10">
-              <h2 className="text-xs font-bold tracking-[0.2em] mb-6 uppercase" style={{ color: accentColor }}>
+              <h2
+                className="text-xs font-bold tracking-[0.2em] mb-6 uppercase"
+                style={{ color: accentColor }}
+              >
                 Experience
               </h2>
               <div className="space-y-8">
                 {data.experience.map((exp, index) => (
-                  <div key={index} className="relative pl-4 border-l-2" style={{ borderColor: accentColor + "20" }}>
+                  <div
+                    key={index}
+                    className="relative pl-4 border-l-2"
+                    style={{ borderColor: accentColor + "20" }}
+                  >
                     <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-bold text-zinc-800">{exp.position}</h3>
+                      <h3 className="font-bold text-zinc-800">
+                        {exp.position}
+                      </h3>
                       <span className="text-[10px] font-bold text-zinc-400 uppercase">
-                        {formatDate(exp.start_date)} — {exp.is_current ? "Present" : formatDate(exp.end_date)}
+                        {formatDate(exp.start_date)} —{" "}
+                        {exp.is_current ? "Present" : formatDate(exp.end_date)}
                       </span>
                     </div>
-                    <p className="text-sm font-medium mb-2" style={{ color: accentColor }}>{exp.company}</p>
+                    <p
+                      className="text-sm font-medium mb-2"
+                      style={{ color: accentColor }}
+                    >
+                      {exp.company}
+                    </p>
                     <p className="text-xs text-zinc-500 leading-relaxed whitespace-pre-line">
                       {exp.description}
                     </p>
@@ -175,14 +193,34 @@ const imageSrc = useMemo(() => {
           {/* Projects */}
           {data.project?.length > 0 && (
             <section>
-              <h2 className="text-xs font-bold tracking-[0.2em] mb-6 uppercase" style={{ color: accentColor }}>
+              <h2
+                className="text-xs font-bold tracking-[0.2em] mb-6 uppercase"
+                style={{ color: accentColor }}
+              >
                 Key Projects
               </h2>
               <div className="grid grid-cols-1 gap-6">
                 {data.project.map((proj, index) => (
                   <div key={index}>
-                    <h3 className="text font-bold text-zinc-800">{proj.name}</h3>
-                     <p className="text-sm font-medium mb-2" style={{ color: accentColor }}>{proj.type}</p>
+                    <h3 className="text font-bold text-zinc-800">
+                      {proj.name}
+                    </h3>
+                    {proj.link && (
+                      <div
+                        className="flex items-center gap-1 text-sm font-medium mb-2"
+                        style={{ color: accentColor }}
+                      >
+                        <Globe size={14} />
+                        <a
+                          href={proj.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="break-all hover:underline"
+                        >
+                          View Project
+                        </a>
+                      </div>
+                    )}
                     <p className="text-sm text-zinc-500 leading-relaxed">
                       {proj.description}
                     </p>

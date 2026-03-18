@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Linkedin,Github,Globe } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Github, Globe } from "lucide-react";
 
 const ModernTemplate = ({ data, accentColor }) => {
   const formatDate = (dateStr) => {
@@ -86,7 +86,7 @@ const ModernTemplate = ({ data, accentColor }) => {
       </header>
 
       <div className="p-8">
-        {/* Professional Summary */} 
+        {/* Professional Summary */}
         {data.professional_summary && (
           <section className="mb-8">
             <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
@@ -153,6 +153,23 @@ const ModernTemplate = ({ data, accentColor }) => {
                       <h3 className="text-lg font-medium text-gray-900">
                         {p.name}
                       </h3>
+
+                      {p.link && (
+                        <div
+                          className="flex items-center gap-1 text-sm mt-1"
+                          style={{ color: accentColor }}
+                        >
+                          <Globe className="size-3" />
+                          <a
+                            href={p.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
+                            View Project
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </div>
                   {p.description && (
@@ -182,7 +199,7 @@ const ModernTemplate = ({ data, accentColor }) => {
                     </h3>
                     <p style={{ color: accentColor }}>{edu.institution}</p>
                     <div className="flex justify-between items-center text-sm text-gray-600">
-                      <span>{formatDate(edu.graduation_date)}</span>
+                      <span>{formatDate(edu.end_date)}</span>
                       {edu.gpa && <span>GPA: {edu.gpa}</span>}
                     </div>
                   </div>

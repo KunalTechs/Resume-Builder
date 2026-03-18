@@ -1,6 +1,6 @@
-import { Mail, Phone, MapPin, Linkedin, Github,Globe } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Github, Globe } from "lucide-react";
 
-const ClassicTemplate = ({ data, accentColor }) => { 
+const ClassicTemplate = ({ data, accentColor }) => {
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const [year, month] = dateStr.split("-");
@@ -49,8 +49,8 @@ const ClassicTemplate = ({ data, accentColor }) => {
           {data.personal_info?.github && (
             <div className="flex items-center gap-1">
               <Github className="size-4" />
-               <span className="break-all">{data.personal_info.github}</span>
-               </div>
+              <span className="break-all">{data.personal_info.github}</span>
+            </div>
           )}
           {data.personal_info?.website && (
             <div className="flex items-center gap-1">
@@ -136,6 +136,19 @@ const ClassicTemplate = ({ data, accentColor }) => {
               >
                 <div>
                   <li className="font-semibold text-gray-800 ">{proj.name}</li>
+                  {proj.link && (
+                    <div className="flex items-center gap-1 text-sm text-blue-600">
+                      <Globe className="size-3" />
+                      <a
+                        href={proj.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="break-all hover:underline"
+                      >
+                       View Project
+                      </a>
+                    </div>
+                  )}
                   <p className="text-gray-600">{proj.description}</p>
                 </div>
               </div>
@@ -167,7 +180,7 @@ const ClassicTemplate = ({ data, accentColor }) => {
                   )}
                 </div>
                 <div className="text-sm text-gray-600">
-                  <p>{formatDate(edu.graduation_date)}</p>
+                  <p>{formatDate(edu.end_date)}</p>
                 </div>
               </div>
             ))}

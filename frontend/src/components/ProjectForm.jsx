@@ -4,10 +4,10 @@ import React from "react";
 const ProjectForm = ({ data, onChange }) => {
   const addProject = () => {
     const newProject = {
-      name: "",
-      type: "",
-      description: "",
-    };
+  name: "",
+  link: "",   
+  description: "",
+};
     onChange([...data, newProject]);
   };
 
@@ -65,12 +65,12 @@ const ProjectForm = ({ data, onChange }) => {
               />
 
               <input
-                value={project.type || ""}
+                value={project.link || ""}
                 onChange={(e) =>
-                  updateProject(index, "type", e.target.value)
+                 updateProject(index, "link", e.target.value)
                 }
                 type="text"
-                placeholder="Project Type"
+               placeholder="Project Link"
                 className="px-3 py-2 text-white border border-gray-300  focus:ring focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-sm rounded-lg"
               />
 
