@@ -1,31 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ResumePreview from "../components/ResumePreview";
-import api from "../config/api"; // Ensure this points to your axios config
+import api from "../config/api";
 import { ArrowLeftIcon } from "lucide-react";
 
 const Preview = () => {
   const { resumeId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [resumeData, setresumeData] = useState(null);
+  const [removeBackground, setRemoveBackground] = useState(false);
 
-  // --- THE UPDATED LOAD LOGIC ---
   const loadresume = async () => {
     try {
       setIsLoading(true);
-      // Fetch from your MongoDB backend
-    const { data } = await api.get(`/api/resumes/public/${resumeId}`);
-      
-    if (data) {
-      // ✅ Sync the local toggle with whatever is saved in your DB
-      setRemoveBackground(data.removeBackground || false);
+      const { data } = await api.get(`/api/resumes/public/${resumeId}`);
+      if (data) {
+        setRemoveBackground(data.removeBackground || false);
         setresumeData({
           ...data,
           personal_info: data.personal_info || {},
           experience: data.experience || [],
           education: data.education || [],
           project: data.project || [],
-          skills: data.skills || []
+          skills: data.skills || [],
         });
       }
     } catch (error) {
@@ -36,13 +33,43 @@ const Preview = () => {
     }
   };
 
-  // Inside your Preview component, before the useEffect
-const [removeBackground, setRemoveBackground] = useState(false); // ✅ Add this line
   useEffect(() => {
-    if (resumeId) {
-      loadresume();
-    }
+    if (resumeId) loadresume();
   }, [resumeId]);
+
+  // ✅ downloadResume is now defined here, before return
+  const downloadResume = () => {
+  const preview = document.getElementById("resume-preview");
+  if (!preview) return window.print();
+
+  const A4_HEIGHT_PX = 1123;
+  const A4_WIDTH_PX = 794;
+
+  // ✅ offsetHeight is more accurate than scrollHeight for scaled content
+  const contentHeight = preview.offsetHeight;
+  const contentWidth = preview.offsetWidth;
+
+  const scaleX = A4_WIDTH_PX / contentWidth;
+  const scaleY = A4_HEIGHT_PX / contentHeight;
+  const scale = Math.min(scaleX, scaleY, 1);
+
+  preview.style.transformOrigin = "top left";
+  preview.style.transform = `scale(${scale})`;
+  preview.style.width = `${A4_WIDTH_PX}px`;
+  preview.style.height = `${A4_HEIGHT_PX}px`;
+  preview.style.overflow = "hidden";
+
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      preview.style.transform = "";
+      preview.style.transformOrigin = "";
+      preview.style.width = "";
+      preview.style.height = "";
+      preview.style.overflow = "";
+    }, 1000);
+  }, 300);
+};
 
   if (isLoading) {
     return (
@@ -69,36 +96,38 @@ const [removeBackground, setRemoveBackground] = useState(false); // ✅ Add this
     );
   }
 
-
-
   return (
-    /* 1. Added print:p-0 and print:bg-white to strip the dashboard background */
     <div className="bg-gray-900 min-h-screen print:bg-white print:min-h-0 print:p-0">
-     
-        
-        {/* 2. Wrap this entire UI section in 'no-print' */}
-        <div className="no-print mb-6 flex justify-between items-center">
-           <Link to="/" className="text-slate-400 hover:text-white flex items-center gap-2">
-              <ArrowLeftIcon className="size-4" /> Dashboard
-           </Link>
-           <button 
-             onClick={() => window.print()} 
-             className="bg-purple-600 text-white px-4 py-2 rounded-lg"
-           >
-             Download PDF
-           </button>
-        </div>
+      {/* Hidden during print */}
+      <div className="no-print mb-6 flex justify-between items-center p-6">
+        <Link
+          to="/"
+          className="text-slate-400 hover:text-white flex items-center gap-2"
+        >
+          <ArrowLeftIcon className="size-4" /> Dashboard
+        </Link>
+        <button
+          onClick={downloadResume}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg"
+        >
+          Download PDF
+        </button>
+      </div>
 
-         <div className="max-w-4xl mx-auto py-10 print:p-0">
-        {/* 3. The ID is critical for the CSS in ResumePreview.jsx */}
-        <div id="resume-preview" className="shadow-2xl print:shadow-none print:m-0">
-          <ResumePreview
-            key={resumeData._id}
-            data={resumeData}
-            template={resumeData.template}
-            accentColor={resumeData.accent_color}
-            removeBackground={removeBackground}
-          />
+      <div className="max-w-4xl mx-auto py-10 print:p-0">
+        <div id="print-area">
+          <div
+            id="resume-preview"
+            className="shadow-2xl print:shadow-none print:m-0"
+          >
+            <ResumePreview
+              key={resumeData._id}
+              data={resumeData}
+              template={resumeData.template}
+              accentColor={resumeData.accent_color}
+              removeBackground={removeBackground}
+            />
+          </div>
         </div>
       </div>
     </div>

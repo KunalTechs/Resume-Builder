@@ -32,6 +32,35 @@ const App = () => {
     getUserData();
   }, []);
 
+  // ✅ Mobile scaling for resume preview
+  useEffect(() => {
+    const scaleResumeForMobile = () => {
+      const preview = document.getElementById("resume-preview");
+      if (!preview) return;
+
+      const screenWidth = window.innerWidth;
+      if (screenWidth < 794) {
+        const scale = screenWidth / 794;
+        preview.style.transform = `scale(${scale})`;
+        preview.style.transformOrigin = "top left";
+        preview.style.width = "794px";
+        preview.style.height = `${1123 * scale}px`;
+      } else {
+        preview.style.transform = "";
+        preview.style.transformOrigin = "";
+        preview.style.width = "";
+        preview.style.height = "";
+      }
+    };
+
+    // Run on load and every resize
+    scaleResumeForMobile();
+    window.addEventListener("resize", scaleResumeForMobile);
+
+    // Cleanup listener on unmount
+    return () => window.removeEventListener("resize", scaleResumeForMobile);
+  }, []);
+
   return (
     <>
       <Toaster />
