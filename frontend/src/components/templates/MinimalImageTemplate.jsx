@@ -33,8 +33,8 @@ const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
   }, [data?.personal_info?.image, removeBackground, accentColor]);
 
   return (
-    <div className="max-w-5xl mx-auto bg-white text-zinc-800 shadow-lg">
-      <div className="grid grid-cols-3">
+    <div className="bg-white text-zinc-800 shadow-lg" style={{ width: '794px', minHeight: '1123px' }}>
+      <div className="grid grid-cols-3" style={{ minHeight: '1123px' }}>
         <div className="col-span-1 py-10">
           {imageSrc && (
             <div className="mb-6 flex justify-center">
