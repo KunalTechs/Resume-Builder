@@ -2,79 +2,23 @@
 
 @import "tailwindcss";
 
-* {
-  font-family: "Outfit", sans-serif;
+*{
+     font-family: "Outfit", sans-serif;
 }
 
-@layer base {
-  button {
-    @apply cursor-pointer;
-  }
+@layer base{
+     button {
+          @apply cursor-pointer;
+     }
 }
 
-/* Fix for Chrome autofill */
+/* Fix for Chrome autofill and paste turning input white */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #000 inset !important;
-  -webkit-text-fill-color: #fff !important;
-  caret-color: #fff !important;
-  transition: background-color 9999s ease-in-out 0s;
+  -webkit-box-shadow: 0 0 0 30px #000 inset !important; /* force black background */
+  -webkit-text-fill-color: #fff !important; /* force white text */
+  caret-color: #fff !important; /* white typing cursor */
+  transition: background-color 9999s ease-in-out 0s; /* prevent flash */
 }
-
-/* ===== PRINT / PDF STYLES ===== */
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 0;
-  }
-
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    overflow: hidden !important;
-    background: white !important;
-  }
-
-  /* ✅ Hide the navbar/buttons */
-  .no-print {
-    display: none !important;
-  }
-
-  /* ✅ Hide everything EXCEPT the resume */
-  body > *:not(#root) {
-    display: none !important;
-  }
-
-  /* ✅ Make root transparent so #print-area shows */
-  #root > *:not(:has(#print-area)) {
-    display: none !important;
-  }
-
-  #print-area {
-    display: block !important;
-    position: fixed !important;
-    inset: 0 !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    overflow: hidden !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    background: white !important;
-  }
-
-  #resume-preview {
-    box-shadow: none !important;
-    margin: 0 !important;
-  }
-}
-
