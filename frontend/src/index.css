@@ -12,16 +12,6 @@
   }
 }
 
-/* ===== MOBILE: scale resume to fit small screens ===== */
-@media (max-width: 794px) {
-  #resume-preview {
-    transform-origin: top left;
-    transform: scale(calc(100vw / 794px));
-    width: 794px;
-    height: calc(1123px * (100vw / 794px));
-    overflow: hidden;
-  }
-}
 
 /* Fix for Chrome autofill */
 input:-webkit-autofill,
