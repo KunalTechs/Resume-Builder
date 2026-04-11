@@ -37,10 +37,10 @@ const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
     className="bg-white text-zinc-800 shadow-lg mx-auto"
     style={{ width: "794px", minHeight: "1123px" }}
   >
-    {/* ✅ Header row - separate from the main grid */}
-    <div className="grid grid-cols-3 border-b border-zinc-100">
+    {/* Header - stack vertically on mobile */}
+    <div className="flex flex-col sm:flex-row border-b border-zinc-100">
       {/* Image */}
-      <div className="col-span-1 py-8 flex justify-center items-center">
+      <div className="py-8 flex justify-center items-center sm:w-1/3">
         {imageSrc && (
           <div
             className="w-28 h-28 rounded-full overflow-hidden border-4 shadow-sm"
@@ -52,7 +52,7 @@ const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
       </div>
 
       {/* Name + Title */}
-      <div className="col-span-2 flex flex-col justify-center py-8 px-8">
+      <div className="flex flex-col justify-center py-4 sm:py-8 px-8 sm:w-2/3 text-center sm:text-left">
         <h1 className="text-4xl font-bold text-zinc-700 tracking-widest uppercase">
           {data.personal_info?.fullname || "Your Name"}
         </h1>
@@ -62,10 +62,10 @@ const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
       </div>
     </div>
 
-    {/* ✅ Body - sidebar + main content */}
-    <div className="grid grid-cols-3">
+    {/* Body - stack vertically on mobile */}
+    <div className="flex flex-col sm:flex-row">
       {/* Left Sidebar */}
-      <aside className="col-span-1 border-r border-zinc-200 p-6">
+      <aside className="sm:w-1/3 border-b sm:border-b-0 sm:border-r border-zinc-200 p-6">
         {/* Contact */}
         <section className="mb-8">
           <h2 className="text-xs font-bold tracking-[0.2em] text-zinc-400 mb-4 uppercase">
@@ -132,7 +132,7 @@ const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
       </aside>
 
       {/* Right Content */}
-      <main className="col-span-2 p-8">
+      <main className="sm:w-2/3 p-8">
         {/* Summary */}
         {data.professional_summary && (
           <section className="mb-10">
@@ -215,7 +215,9 @@ const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
         )}
       </main>
     </div>
-     <div className="border-t border-zinc-200 mx-6 py-3 flex justify-center">
+
+    {/* Closing line */}
+    <div className="border-t border-zinc-200 mx-6 py-3 flex justify-center">
       <p className="text-[10px] text-zinc-300 tracking-widest uppercase">
         {data.personal_info?.fullname || "Resume"} · {data.personal_info?.profession || ""}
       </p>

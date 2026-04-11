@@ -11,8 +11,7 @@ const ModernTemplate = ({ data, accentColor }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white text-gray-800">
-      {/* Header */}
+    <div className="bg-white text-gray-800" style={{ width: "794px", minHeight: "1123px", boxSizing: "border-box" }}>      {/* Header */}
       <header
         className="p-8 text-white"
         style={{ backgroundColor: accentColor }}

@@ -11,7 +11,7 @@ const ClassicTemplate = ({ data, accentColor }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white text-gray-800 leading-relaxed">
+    <div className="bg-white text-gray-800 leading-relaxed p-8" style={{ width: "794px", minHeight: "1123px", boxSizing: "border-box" }}>
       {/* Header */}
       <header
         className="text-center mb-8 pb-6 border-b-2"
