@@ -74,6 +74,7 @@ input:-webkit-autofill:active {
     padding: 0 !important;
     box-shadow: none !important;
     background: white !important;
+    z-index: 999999 !important;
   }
 
   #resume-preview {

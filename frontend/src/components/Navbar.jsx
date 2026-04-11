@@ -20,7 +20,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="relative z-50 flex items-center justify-between w-full py-5 px-6 md:px-16 lg:px-24 xl:px-40 border-b border-white/10 backdrop-blur-sm bg-black/40 text-white">
+    <nav className="no-print relative z-50 flex items-center justify-between w-full py-5 px-6 md:px-16 lg:px-24 xl:px-40 border-b border-white/10 backdrop-blur-sm bg-black/40 text-white">
       {/* Updated Logo Style */}
       <Link to="/" className="flex items-center gap-2">
         <h2 className="text-2xl font-bold tracking-tighter">

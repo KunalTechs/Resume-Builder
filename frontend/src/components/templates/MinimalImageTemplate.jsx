@@ -33,10 +33,10 @@ const MinimalImageTemplate = ({ data, accentColor, removeBackground }) => {
   }, [data?.personal_info?.image, removeBackground, accentColor]);
 
   return (
-  <div
-    className="bg-white text-zinc-800 shadow-lg mx-auto"
-    style={{ width: "794px", minHeight: "1123px" }}
-  >
+ <div
+  className="bg-white text-zinc-800 shadow-lg mx-auto w-full print:w-[794px]"
+  style={{ minHeight: "1123px" }}
+>
     {/* Header - stack vertically on mobile */}
     <div className="flex flex-col sm:flex-row border-b border-zinc-100">
       {/* Image */}

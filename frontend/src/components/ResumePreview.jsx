@@ -4,8 +4,6 @@ import MinimalImageTemplate from "./templates/MinimalImageTemplate";
 import ModernTemplate from "./templates/ModernTemplate";
 import MinimalTemplate from "./templates/MinimalTemplate";
 
-// ... your existing imports
-
 const ResumePreview = ({
   data,
   template,
@@ -15,12 +13,9 @@ const ResumePreview = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Trigger processing state when removeBackground is toggled on
   useEffect(() => {
     if (removeBackground && data?.personal_info?.image) {
       setIsProcessing(true);
-
-      // Simulating a refresh period for the AI to process (usually 5–10 seconds)
       const timer = setTimeout(() => setIsProcessing(false), 8000);
       return () => clearTimeout(timer);
     } else {
@@ -35,7 +30,6 @@ const ResumePreview = ({
 
   const renderTemplate = () => {
     const props = { data: syncedData, accentColor, removeBackground };
-
     switch (template) {
       case "modern":
         return <ModernTemplate {...props} />;
@@ -60,63 +54,69 @@ const ResumePreview = ({
         </div>
       )}
 
-      <div
-        id="resume-preview"
-        className={
-          "border border-gray-200 shadow-none print:border-none bg-white " +
-          classes
-        }
-      >
+      {/* ✅ SCREEN VIEW - responsive, natural flow, no fixed width */}
+      <div className="print:hidden border border-gray-200 bg-white">
         {renderTemplate()}
       </div>
-<style jsx="true">{`
-  @media print {
-  html, body {
-      height: 297mm !important;
-      max-height: 297mm !important;
-      overflow: hidden !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    /* 1. Reset page to A4 and remove browser margins */
-    @page {
-      size: A4;
-      margin: 0 !important;
-    }
 
-    /* 2. Hide everything by default but keep parents accessible */
-    body * {
-      visibility: hidden;
-    }
+      {/* ✅ PRINT VIEW - fixed 794px, hidden on screen, only shows during print/download */}
+      <div className="hidden print:block" id="print-area">
+        <div id="resume-preview" style={{ width: "794px", minHeight: "1123px" }}>
+          {renderTemplate()}
+        </div>
+      </div>
 
-    /* 3. Specifically 'turn on' the resume and its contents */
-    #resume-preview,
-    #resume-preview * {
-      visibility: visible !important;
-    }
+      <style jsx="true">{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
 
-    /* 4. Force the resume to the absolute top of the viewport */
-    #resume-preview {
-      display: block !important;
-      position: fixed !important; /* Bypasses dashboard scroll position */
-      top: 0 !important;
-      left: 0 !important;
-      width: 210mm !important;
-      height: 297mm !important;
-      background: white !important;
-      z-index: 99999 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: hidden !important; /* Blocks any second page */
-    }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
 
-    /* 5. Force colors for red header and profile border */
-    * {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-  }
-`}</style>
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            overflow: hidden !important;
+            background: white !important;
+          }
+
+          .no-print {
+            display: none !important;
+          }
+
+          body > *:not(#root) {
+            display: none !important;
+          }
+
+          #root > *:not(:has(#print-area)) {
+            display: none !important;
+          }
+
+          #print-area {
+            display: block !important;
+            position: fixed !important;
+            inset: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+
+          #resume-preview {
+            box-shadow: none !important;
+            margin: 0 !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
